@@ -3,9 +3,11 @@ nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = ["npm install"]
+dir = "backend"
 
 [phases.build]
 cmds = []
 
 [start]
 cmd = "node server.js"
+dir = "backend"
