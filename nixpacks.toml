@@ -9,12 +9,3 @@ cmds = []
 
 [start]
 cmd = "node server.js"
-```
-
-**4. Save both files** (`Cmd+S`)
-
-**5. Open VSCode terminal** (`Ctrl+`` `) and run:
-```
-git add .
-git commit -m "fix railway root directory"
-git push
