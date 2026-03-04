@@ -1,0 +1,9 @@
+{
+  "name": "appvertex",
+  "version": "1.0.0",
+  "description": "AppVertex deployment",
+  "scripts": {
+    "start": "cd backend && node server.js"
+  },
+  "dependencies": {}
+}
