@@ -1,0 +1,5 @@
+# Netlify Redirects
+# Proxy /api/* calls to the Railway backend so the frontend doesn't need hardcoded URLs.
+# Replace the URL below with your actual Railway service URL after deploying.
+
+/api/*  https://YOUR-RAILWAY-APP.up.railway.app/api/:splat  200
