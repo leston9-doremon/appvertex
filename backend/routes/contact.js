@@ -30,6 +30,12 @@ router.post('/', async (req, res) => {
   const safeMessage = sanitize(message);
 
   try {
+    // Log that we're attempting to send
+    console.log('📧 Attempting to send email...');
+    console.log('SMTP_HOST:', process.env.SMTP_HOST);
+    console.log('SMTP_PORT:', process.env.SMTP_PORT);
+    console.log('SMTP_USER:', process.env.SMTP_USER);
+    
     // Notify you
     await transporter.sendMail({
       from: `"AppVerteX Contact" <${process.env.SMTP_USER}>`,
@@ -58,7 +64,8 @@ router.post('/', async (req, res) => {
 
     res.json({ success: true, message: 'Message sent!' });
   } catch (err) {
-    console.error('EMAIL ERROR:', err.message);
+    console.error('❌ EMAIL ERROR:', err.message);
+    console.error('Error details:', err);
     res.status(500).json({ error: 'Failed to send email. Please try again later.' }); // ✅ don't leak internal error details
   }
 });
