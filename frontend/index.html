@@ -4252,9 +4252,20 @@
                     const logoApp = document.querySelector('.logo-app');
                     const logoVertex = document.querySelector('.logo-vertex');
                     if (logoApp && data.navbar.logoText) {
-                        const words = data.navbar.logoText.match(/[A-Z][a-z]+/g) || [data.navbar.logoText];
-                        logoApp.textContent = words[0] || 'App';
-                        logoVertex.textContent = words[1] || 'VerteX';
+                        // For "AppVerteX", keep it as one unit. For other text like "Web Agency", split by capitals
+                        let appText = 'App';
+                        let vertexText = 'VerteX';
+                        
+                        if (data.navbar.logoText === 'AppVerteX') {
+                            // Keep AppVerteX as is
+                            logoApp.textContent = 'App';
+                            logoVertex.textContent = 'VerteX';
+                        } else {
+                            // For custom text, split by capital letters
+                            const words = data.navbar.logoText.match(/[A-Z][a-z]+/g) || [data.navbar.logoText];
+                            logoApp.textContent = words[0] || 'App';
+                            logoVertex.textContent = words.slice(1).join('') || 'VerteX';
+                        }
                     }
                     const navCta = document.querySelector('.cta-button span');
                     if (navCta && data.navbar.ctaText) navCta.textContent = data.navbar.ctaText;
