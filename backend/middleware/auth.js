@@ -15,8 +15,11 @@ const login = async (req, res) => {
   
   if (password !== process.env.ADMIN_PASSWORD) {
     console.log('❌ Password mismatch');
+    console.log('Received password:', JSON.stringify(password));
+    console.log('Expected password:', JSON.stringify(process.env.ADMIN_PASSWORD));
     console.log('Received password length:', password.length);
     console.log('Expected password length:', process.env.ADMIN_PASSWORD?.length);
+    console.log('Match:', password === process.env.ADMIN_PASSWORD);
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 

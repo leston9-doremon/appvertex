@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
     
     // Notify you
     await transporter.sendMail({
-      from: `"AppVerteX Contact" <${process.env.SMTP_USER}>`,
+      from: `"AppVerteX Contact" <onboarding@resend.dev>`,
       to: process.env.CONTACT_RECEIVER || process.env.SMTP_USER,
       subject: `New message from ${safeName}`,
       html: `
@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
 
     // Auto-reply to sender
     await transporter.sendMail({
-      from: `"AppVerteX" <${process.env.SMTP_USER}>`,
+      from: `"AppVerteX" <onboarding@resend.dev>`,
       to: safeEmail,
       subject: `Thanks for reaching out, ${safeName}!`,
       html: `
