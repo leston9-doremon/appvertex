@@ -5,11 +5,22 @@ const bcrypt = require('bcryptjs');
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log('🔐 Login attempt:', { email, adminEmail: process.env.ADMIN_EMAIL });
+  
   // Simple admin check (in production, use a database)
-  if (email !== process.env.ADMIN_EMAIL || password !== process.env.ADMIN_PASSWORD) {
+  if (email !== process.env.ADMIN_EMAIL) {
+    console.log('❌ Email mismatch');
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  
+  if (password !== process.env.ADMIN_PASSWORD) {
+    console.log('❌ Password mismatch');
+    console.log('Received password length:', password.length);
+    console.log('Expected password length:', process.env.ADMIN_PASSWORD?.length);
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
+  console.log('✅ Login successful for:', email);
   const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
   res.json({ token });
 };
