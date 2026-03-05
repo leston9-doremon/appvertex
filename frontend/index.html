@@ -2277,15 +2277,16 @@
             position: fixed;
             top: 0;
             right: 0;
-            width: 50%;
-            min-width: 280px;
+            width: 80%;
+            /* Increased for better usability */
+            max-width: 400px;
             height: 100dvh;
             background: rgba(8, 12, 16, 0.98);
             backdrop-filter: blur(20px);
             border-left: 1px solid var(--border);
             flex-direction: column;
             gap: 1.5rem;
-            padding: 5rem 1.5rem 1.5rem;
+            padding: 6rem 2.5rem 2.5rem;
             z-index: 3000;
             box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
@@ -2293,6 +2294,23 @@
             transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
             pointer-events: none;
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
         }
 
         .mobile-menu.open {
@@ -2330,6 +2348,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                z-index: 3001;
+                /* Above mobile-menu */
             }
 
             .logo {
@@ -2710,6 +2730,7 @@
 
     <!-- MOBILE MENU -->
     <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close Menu">✕</button>
         <a href="#services" onclick="closeMobileMenu()">Services</a>
         <a href="#about" onclick="closeMobileMenu()">About</a>
         <a href="#projects" onclick="closeMobileMenu()">Work</a>
@@ -4279,7 +4300,8 @@
                             navLinksWrap.innerHTML = data.navbar.links.map(l => `<a href="${l.url}">${l.label}</a>`).join('');
                         }
                         if (mobileMenuWrap) {
-                            mobileMenuWrap.innerHTML = data.navbar.links.map(l => `<a href="${l.url}" onclick="closeMobileMenu()">${l.label}</a>`).join('') +
+                            mobileMenuWrap.innerHTML = `<button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close Menu">✕</button>` +
+                                data.navbar.links.map(l => `<a href="${l.url}" onclick="closeMobileMenu()">${l.label}</a>`).join('') +
                                 `<a href="#contact" onclick="closeMobileMenu()">Contact</a>`;
                         }
                     }
