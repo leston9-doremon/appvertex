@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'AppVerteX <onboarding@resend.dev>',
+        from: 'AppVerteX <info@appvertex.in>',
         to: [process.env.CONTACT_RECEIVER],
         subject: `New message from ${safeName}`,
         html: `
@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'AppVerteX <onboarding@resend.dev>',
+        from: 'AppVerteX <info@appvertex.in>',
         to: [safeEmail],
         subject: `Thanks for reaching out, ${safeName}!`,
         html: `
