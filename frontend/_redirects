@@ -3,3 +3,4 @@
 # Replace the URL below with your actual Railway service URL after deploying.
 
 /api/*  https://appvertex-backend-production-82d7.up.railway.app/api/:splat  200
+/admin  /admin.html  200
