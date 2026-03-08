@@ -1349,12 +1349,15 @@
 
     <script>
         let hasUnsaved = false;
-        const API_URL = '/api/content';
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:8000'
+            : 'https://appvertex-backend-production-82d7.up.railway.app';
+        const API_URL = API_BASE + '/api/content';
 
         async function login() {
             const pass = document.getElementById('adminPass').value;
             try {
-                const res = await fetch('/api/content/login', {
+                const res = await fetch(API_BASE + '/api/content/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: 'lestoncoelho9@gmail.com', password: pass })
