@@ -3839,6 +3839,68 @@
         })();
 
 
+        /* Enhanced Audio Context Setup - Device Compatible */
+        (function() {
+            let audioCtx = null;
+            let masterGain = null;
+            let isMuted = false;
+            
+            function setupAudioUnlock() {
+                const unlock = () => {
+                    if (audioCtx) return; 
+                    try {
+                        const AC = window.AudioContext || window.webkitAudioContext;
+                        audioCtx = new AC();
+                        masterGain = audioCtx.createGain();
+                        masterGain.gain.value = 0.55;
+                        masterGain.connect(audioCtx.destination);
+                        console.log('✓ Audio unlocked');
+                    } catch(e) {
+                        console.warn('Audio not available on this device');
+                    }
+                };
+                ['click', 'keydown', 'touchstart', 'touchend'].forEach(event => {
+                    document.addEventListener(event, unlock, { once: true });
+                });
+                setTimeout(unlock, 150);
+            }
+            
+            function setupMuteButton() {
+                const btn = document.getElementById('loader-mute');
+                if(!btn) return;
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    isMuted = !isMuted;
+                    const icon = btn.querySelector('.mute-icon');
+                    const text = btn.querySelector('span:last-child');
+                    if(icon) icon.textContent = isMuted ? '🔇' : '🔊';
+                    if(text) text.textContent = isMuted ? 'Muted' : 'Sound';
+                    if(audioCtx && masterGain) {
+                        const now = audioCtx.currentTime;
+                        masterGain.gain.cancelScheduledValues(now);
+                        masterGain.gain.setTargetAtTime(isMuted ? 0 : 0.55, now, 0.08);
+                    }
+                });
+            }
+            
+            window.audioSystem = {
+                getContext: () => audioCtx,
+                getMasterGain: () => masterGain,
+                isMuted: () => isMuted,
+                getUnlocked: () => !!audioCtx
+            };
+            
+            if(document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    setupAudioUnlock();
+                    setupMuteButton();
+                });
+            } else {
+                setupAudioUnlock();
+                setupMuteButton();
+            }
+        })();
+
         /* ═══════════════════════════════════════════════════
            LOADER – creative rebuild + Web Audio sound engine
            ═══════════════════════════════════════════════════ */
@@ -3850,47 +3912,29 @@
             let audioCtx = null;
             let masterGain = null;
             let isMuted = false;
-            let audioUnlocked = false;
             let ambientDrone = null;
             let droneGain = null;
 
             function initAudio() {
                 if (audioCtx) return;
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    masterGain = audioCtx.createGain();
-                    masterGain.gain.setValueAtTime(0.55, audioCtx.currentTime);
-                    masterGain.connect(audioCtx.destination);
-                    audioUnlocked = true;
+                if (window.audioSystem && window.audioSystem.getUnlocked()) {
+                    audioCtx = window.audioSystem.getContext();
+                    masterGain = window.audioSystem.getMasterGain();
+                    isMuted = window.audioSystem.isMuted();
                     startAmbientDrone();
                     startBootSequence();
-                } catch (e) { /* audio not supported */ }
+                }
             }
 
-            /* ── Mute toggle ── */
-            const muteBtn = document.getElementById('loader-mute');
-            const muteIcon = muteBtn ? muteBtn.querySelector('.mute-icon') : null;
-            if (muteBtn) {
-                muteBtn.addEventListener('click', () => {
-                    isMuted = !isMuted;
-                    if (audioCtx && masterGain) {
-                        masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-                        masterGain.gain.setTargetAtTime(isMuted ? 0 : 0.55, audioCtx.currentTime, 0.08);
-                    }
-                    if (muteIcon) muteIcon.textContent = isMuted ? '🔇' : '🔊';
-                    muteBtn.querySelector('span') && (muteBtn.querySelector('span').textContent = isMuted ? 'Muted' : 'Sound');
-                });
-            }
-
-            /* ── Unlock audio on first user interaction ── */
             function tryUnlock(e) {
                 initAudio();
-                document.removeEventListener('click', tryUnlock);
-                document.removeEventListener('keydown', tryUnlock);
-                document.removeEventListener('touchstart', tryUnlock);
+                if (audioCtx) {
+                    document.removeEventListener('click', tryUnlock);
+                    document.removeEventListener('keydown', tryUnlock);
+                    document.removeEventListener('touchstart', tryUnlock);
+                }
             }
-            /* Try auto-init first (some browsers allow it) */
-            setTimeout(() => { try { initAudio(); } catch (e) { } }, 80);
+            setTimeout(initAudio, 200);
             document.addEventListener('click', tryUnlock, { once: true });
             document.addEventListener('keydown', tryUnlock, { once: true });
             document.addEventListener('touchstart', tryUnlock, { once: true });
