@@ -16,6 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="logo.svg" type="image/x-icon">
     <style>
         *,
@@ -58,46 +60,153 @@
             width: 100%;
         }
 
-        /* ═══════════════ CUSTOM CURSOR ═══════════════ */
-        #cursor {
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
+        /* ═══════════════════════════════════════════════════
+           CUSTOM CURSOR
+           ═══════════════════════════════════════════════════ */
+        @media (pointer: fine),
+        (hover: hover) {
+
+            body,
+            a,
+            button,
+            input,
+            textarea,
+            select,
+            .hamburger,
+            .social-icon {
+                cursor: none !important;
+            }
+        }
+
+        #cursor,
+        #cursor-follower {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
             border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            opacity: 0;
+            /* Hidden initially, shown on mousemove */
+            transition: opacity 0.3s ease;
+        }
+
+        #cursor {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent);
+            z-index: 100000;
+            mix-blend-mode: difference;
             position: fixed;
             top: 0;
             left: 0;
             pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s, width 0.25s, height 0.25s, background 0.25s;
-            mix-blend-mode: difference;
+            border-radius: 50%;
         }
 
         #cursor-follower {
-            width: 36px;
-            height: 36px;
-            border: 1.5px solid rgba(239, 68, 68, 0.5);
-            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            z-index: 99999;
+            backdrop-filter: blur(1px);
             position: fixed;
             top: 0;
             left: 0;
             pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: all 0.15s ease;
+            border-radius: 50%;
         }
 
-        #cursor.hovered {
-            width: 24px;
-            height: 24px;
+        #cursor-follower.hover {
+            border-color: rgba(239, 68, 68, 0.8);
+            background-color: rgba(239, 68, 68, 0.05);
         }
 
-        #cursor-follower.hovered {
-            width: 56px;
-            height: 56px;
+        #socialLinks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-family: var(--mono);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-link i {
+            font-size: 1.1rem;
+            color: var(--accent);
+            transition: transform 0.4s ease;
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .social-link:hover {
             border-color: var(--accent);
-            background: rgba(239, 68, 68, 0.05);
+            background: rgba(239, 68, 68, 0.08);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(239, 68, 68, 0.2);
+            color: #fff;
+        }
+
+        .social-link:hover::before {
+            left: 100%;
+        }
+
+        .social-link:hover i {
+            transform: rotate(12deg) scale(1.2);
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .social-link::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+            border-radius: inherit;
+        }
+
+        .social-link:hover::after {
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            #socialLinks {
+                gap: 0.6rem;
+            }
+
+            .social-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+            }
         }
 
         /* ═══════════════ LOADER ═══════════════ */
@@ -2273,13 +2382,29 @@
         }
 
         /* ═══════════════ MOBILE MENU ═══════════════ */
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .menu-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .mobile-menu {
             position: fixed;
             top: 0;
             right: 0;
-            width: 80%;
-            /* Increased for better usability */
-            max-width: 400px;
+            width: 40%;
+            min-width: 200px;
+            max-width: 300px;
             height: 100dvh;
             background: rgba(8, 12, 16, 0.98);
             backdrop-filter: blur(20px);
@@ -2287,7 +2412,7 @@
             flex-direction: column;
             gap: 1.5rem;
             padding: 6rem 2.5rem 2.5rem;
-            z-index: 3000;
+            z-index: 3001;
             box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
             transform: translateX(100%);
@@ -2306,11 +2431,13 @@
             width: 40px;
             height: 40px;
             border-radius: 4px;
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
             cursor: pointer;
+            z-index: 3005;
+            pointer-events: auto;
         }
 
         .mobile-menu.open {
@@ -2324,20 +2451,48 @@
             font-size: 0.9rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            transition: color 0.2s;
+            transition: color 0.2s, transform 0.3s;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .mobile-menu.open a {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Staggered entry */
+        .mobile-menu.open a:nth-child(2) {
+            transition-delay: 0.1s;
+        }
+
+        .mobile-menu.open a:nth-child(3) {
+            transition-delay: 0.15s;
+        }
+
+        .mobile-menu.open a:nth-child(4) {
+            transition-delay: 0.2s;
+        }
+
+        .mobile-menu.open a:nth-child(5) {
+            transition-delay: 0.25s;
+        }
+
+        .mobile-menu.open a:nth-child(6) {
+            transition-delay: 0.3s;
+        }
+
+        .mobile-menu.open a:nth-child(7) {
+            transition-delay: 0.35s;
         }
 
         .mobile-menu a:hover {
             color: var(--accent);
+            transform: translateX(5px);
         }
 
         /* ═══════════════ RESPONSIVE ≤768px ═══════════════ */
         @media (max-width: 768px) {
-
-            #cursor,
-            #cursor-follower {
-                display: none;
-            }
 
             html {
                 cursor: auto;
@@ -2633,7 +2788,6 @@
 
         <!-- VU meter (bottom-left) -->
         <div id="loader-vu"></div>
-
         <!-- Mute toggle (bottom-right) -->
         <button id="loader-mute" aria-label="Toggle sound"><span class="mute-icon">🔊</span><span>Sound</span></button>
 
@@ -2725,7 +2879,7 @@
 
     <!-- NAVIGATION -->
     <nav id="mainNav">
-        <a href="#" class="logo"><span class="logo-app">App</span><span class="logo-vertex">VerteX</span></a>
+        <a href="#hero" class="logo"><span class="logo-app">App</span><span class="logo-vertex">VerteX</span></a>
         <div class="nav-links">
             <a href="#services">Services</a>
             <a href="#about">About</a>
@@ -2738,8 +2892,10 @@
     </nav>
 
     <!-- MOBILE MENU -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMobileMenu()"></div>
     <div class="mobile-menu" id="mobileMenu">
-        <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close Menu">✕</button>
+        <!-- Close button restored for 40% menu UX -->
+        <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">✕</button>
         <a href="#services" onclick="closeMobileMenu()">Services</a>
         <a href="#about" onclick="closeMobileMenu()">About</a>
         <a href="#projects" onclick="closeMobileMenu()">Work</a>
@@ -3221,7 +3377,7 @@
                     <div class="contact-info-item">
                         <span class="contact-label">Email</span>
                         <div class="contact-value" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                            <a href="mailto:info@appvertex.in"
+                            <a href="mailto:info@appvertex.in" id="contactEmail"
                                 style="color:var(--text);text-decoration:none;">info@appvertex.in</a>
                             <a href="mailto:leston@appvertex.in"
                                 style="color:var(--text);text-decoration:none;">leston@appvertex.in</a>
@@ -3230,8 +3386,21 @@
                         </div>
                     </div>
                     <div class="contact-info-item">
-                        <span class="contact-label">Founders</span>
-                        <span class="contact-value">Leston Coelho &amp; Lenstar Monteiro</span>
+                        <span class="contact-label">Social</span>
+                        <div class="contact-value social-links" id="socialLinks">
+                            <a href="https://instagram.com/appvertex" target="_blank" class="social-link">
+                                <i class="fab fa-instagram"></i>
+                                <span>Instagram</span>
+                            </a>
+                            <a href="https://linkedin.com/company/appvertex" target="_blank" class="social-link">
+                                <i class="fab fa-linkedin-in"></i>
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="https://twitter.com/appvertex" target="_blank" class="social-link">
+                                <i class="fab fa-x-twitter"></i>
+                                <span>X / Twitter</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3260,7 +3429,8 @@
     <!-- FOOTER -->
     <footer>
         <div class="footer-left">
-            <a href="#" class="footer-logo"><span class="logo-app">App</span><span class="logo-vertex">VerteX</span></a>
+            <a href="#hero" class="footer-logo"><span class="logo-app">App</span><span
+                    class="logo-vertex">VerteX</span></a>
             <div class="footer-divider"></div>
             <p class="footer-text">© 2026 Built by LESTON &amp; LENSTAR.</p>
         </div>
@@ -3589,28 +3759,82 @@
 
 
         /* ═══════════════════════════════════════════════════
-           CUSTOM CURSOR
+           SMOOTH GSAP CURSOR (Restored & Optimized)
            ═══════════════════════════════════════════════════ */
         (function () {
             const cursor = document.getElementById('cursor');
             const follower = document.getElementById('cursor-follower');
-            let fx = 0, fy = 0, cx = 0, cy = 0;
-            document.addEventListener('mousemove', e => {
-                cx = e.clientX; cy = e.clientY;
-                cursor.style.left = cx + 'px';
-                cursor.style.top = cy + 'px';
+            if (!cursor || !follower) return;
+
+            // Initial state: hidden until mouse moves
+            gsap.set([cursor, follower], { opacity: 0, xPercent: -50, yPercent: -50 });
+
+            window.addEventListener('mousemove', e => {
+                // Show on first move
+                gsap.to([cursor, follower], { opacity: 1, duration: 0.3, overwrite: 'auto' });
+
+                // Dot follows instantly
+                gsap.set(cursor, {
+                    x: e.clientX,
+                    y: e.clientY
+                });
+
+                // Follower follows with buttery smooth lag
+                gsap.to(follower, {
+                    x: e.clientX,
+                    y: e.clientY,
+                    duration: 0.5,
+                    ease: 'power2.out',
+                    overwrite: 'auto'
+                });
             });
-            function followCursor() {
-                fx += (cx - fx) * 0.12;
-                fy += (cy - fy) * 0.12;
-                follower.style.left = fx + 'px';
-                follower.style.top = fy + 'px';
-                requestAnimationFrame(followCursor);
-            }
-            followCursor();
-            document.querySelectorAll('a,button,.service-card,.project-card,.testimonial-card,.person-card,.filter-btn').forEach(el => {
-                el.addEventListener('mouseenter', () => { cursor.classList.add('hovered'); follower.classList.add('hovered'); });
-                el.addEventListener('mouseleave', () => { cursor.classList.remove('hovered'); follower.classList.remove('hovered'); });
+
+            // Hide on touch for mobile compatibility
+            window.addEventListener('touchstart', () => {
+                gsap.to([cursor, follower], { opacity: 0, duration: 0.2 });
+            });
+
+            // Global delegation for hover effects
+            document.addEventListener('mouseover', e => {
+                const target = e.target.closest('a, button, .service-card, .project-card, .testimonial-card, .person-card, .filter-btn, .hamburger, .social-icon, .nav-links a, .footer-links a');
+                if (target) {
+                    follower.classList.add('hover');
+                    gsap.to(follower, {
+                        scale: 1.1,
+                        backgroundColor: 'rgba(239,68,68,0.06)',
+                        borderColor: 'rgba(239,68,68,0.9)',
+                        borderWidth: '2px',
+                        duration: 0.5,
+                        ease: 'expo.out'
+                    });
+                    gsap.to(cursor, {
+                        scale: 0.6,
+                        opacity: 0.8,
+                        duration: 0.4,
+                        ease: 'expo.out'
+                    });
+                }
+            });
+
+            document.addEventListener('mouseout', e => {
+                const target = e.target.closest('a, button, .service-card, .project-card, .testimonial-card, .person-card, .filter-btn, .hamburger, .social-icon, .nav-links a, .footer-links a');
+                if (target) {
+                    follower.classList.remove('hover');
+                    gsap.to(follower, {
+                        scale: 1,
+                        backgroundColor: 'transparent',
+                        borderColor: 'rgba(239,68,68,0.4)',
+                        borderWidth: '1px',
+                        duration: 0.5,
+                        ease: 'expo.out'
+                    });
+                    gsap.to(cursor, {
+                        scale: 1,
+                        opacity: 1,
+                        duration: 0.4,
+                        ease: 'expo.out'
+                    });
+                }
             });
         })();
 
@@ -4167,12 +4391,18 @@
            ═══════════════════════════════════════════════════ */
         function closeMobileMenu() {
             document.getElementById('mobileMenu').classList.remove('open');
+            const overlay = document.getElementById('menuOverlay');
+            if (overlay) overlay.classList.remove('open');
             document.getElementById('hamburger').textContent = '☰';
+            document.body.style.overflow = ''; // Restore scrolling
         }
         document.getElementById('hamburger').addEventListener('click', function () {
             const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('menuOverlay');
             const open = menu.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('open');
             this.textContent = open ? '✕' : '☰';
+            document.body.style.overflow = open ? 'hidden' : ''; // Prevent scrolling when open
         });
 
 
@@ -4243,17 +4473,60 @@
 
 
         /* ═══════════════════════════════════════════════════
-           MAGNETIC BUTTONS
+           MAGNETIC BUTTONS & SOCIAL LINKS
            ═══════════════════════════════════════════════════ */
         (function () {
-            document.querySelectorAll('.btn-primary,.cta-button').forEach(btn => {
+            const magneticEls = document.querySelectorAll('.btn-primary, .cta-button, .social-link, .filter-btn');
+
+            magneticEls.forEach(btn => {
                 btn.addEventListener('mousemove', e => {
                     const r = btn.getBoundingClientRect();
-                    const dx = (e.clientX - r.left - r.width / 2) * 0.3;
-                    const dy = (e.clientY - r.top - r.height / 2) * 0.3;
-                    btn.style.transform = `translate(${dx}px,${dy}px)`;
+                    const centerX = r.left + r.width / 2;
+                    const centerY = r.top + r.height / 2;
+
+                    const dx = (e.clientX - centerX) * 0.35;
+                    const dy = (e.clientY - centerY) * 0.35;
+
+                    gsap.to(btn, {
+                        x: dx,
+                        y: dy,
+                        duration: 0.4,
+                        ease: 'power2.out',
+                        overwrite: 'auto'
+                    });
+
+                    // Inner element movement (optional parallax)
+                    const inner = btn.querySelector('span, i');
+                    if (inner) {
+                        gsap.to(inner, {
+                            x: dx * 0.2,
+                            y: dy * 0.2,
+                            duration: 0.4,
+                            ease: 'power2.out',
+                            overwrite: 'auto'
+                        });
+                    }
                 });
-                btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.6,
+                        ease: 'elastic.out(1, 0.5)',
+                        overwrite: 'auto'
+                    });
+                    const inner = btn.querySelector('span, i');
+                    if (inner) {
+                        gsap.to(inner, {
+                            x: 0,
+                            y: 0,
+                            duration: 0.6,
+                            ease: 'elastic.out(1, 0.5)',
+                            overwrite: 'auto'
+                        });
+                    }
+                });
             });
         })();
 
@@ -4319,7 +4592,7 @@
                             navLinksWrap.innerHTML = data.navbar.links.map(l => `<a href="${l.url}">${l.label}</a>`).join('');
                         }
                         if (mobileMenuWrap) {
-                            mobileMenuWrap.innerHTML = `<button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close Menu">✕</button>` +
+                            mobileMenuWrap.innerHTML = `<button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">✕</button>` +
                                 data.navbar.links.map(l => `<a href="${l.url}" onclick="closeMobileMenu()">${l.label}</a>`).join('') +
                                 `<a href="#contact" onclick="closeMobileMenu()">Contact</a>`;
                         }
@@ -4455,17 +4728,35 @@
                 // 8. CONTACT INFO
                 if (data.contact) {
                     if (data.contact.email) {
-                        const contactEmail = document.querySelector('.contact-info-item:nth-child(2) p');
+                        const contactEmail = document.getElementById('contactEmail');
                         if (contactEmail) contactEmail.textContent = data.contact.email;
                     }
                     if (data.contact.social) {
-                        const socialWrap = document.querySelector('.social-links');
+                        const socialWrap = document.getElementById('socialLinks');
                         if (socialWrap) {
-                            socialWrap.innerHTML = `
-                                <a href="${data.contact.social.twitter}" target="_blank">Twitter</a>
-                                <a href="${data.contact.social.linkedin}" target="_blank">LinkedIn</a>
-                                <a href="${data.contact.social.instagram}" target="_blank">Instagram</a>
-                            `;
+                            let socialHtml = '';
+                            if (data.contact.social.instagram) {
+                                socialHtml += `
+                                    <a href="${data.contact.social.instagram}" target="_blank" class="social-link">
+                                        <i class="fab fa-instagram"></i>
+                                        <span>Instagram</span>
+                                    </a>`;
+                            }
+                            if (data.contact.social.linkedin) {
+                                socialHtml += `
+                                    <a href="${data.contact.social.linkedin}" target="_blank" class="social-link">
+                                        <i class="fab fa-linkedin-in"></i>
+                                        <span>LinkedIn</span>
+                                    </a>`;
+                            }
+                            if (data.contact.social.twitter) {
+                                socialHtml += `
+                                    <a href="${data.contact.social.twitter}" target="_blank" class="social-link">
+                                        <i class="fab fa-x-twitter"></i>
+                                        <span>Twitter</span>
+                                    </a>`;
+                            }
+                            if (socialHtml) socialWrap.innerHTML = socialHtml;
                         }
                     }
                 }
@@ -4486,7 +4777,12 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', fetchContent);
+
+
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchContent();
+        });
 
         /* ═══════════════════════════════════════════════════
            FORM HANDLERS
