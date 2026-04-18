@@ -19,6 +19,25 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="shortcut icon" href="logo.svg" type="image/x-icon">
+    <script>
+        (() => {
+            const STORAGE_KEY = 'appvertex-theme';
+            let savedTheme = null;
+
+            try {
+                savedTheme = localStorage.getItem(STORAGE_KEY);
+            } catch (err) {
+                console.warn('Theme preference unavailable:', err);
+            }
+
+            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = (savedTheme === 'light' || savedTheme === 'dark')
+                ? savedTheme
+                : (systemPrefersDark ? 'dark' : 'light');
+
+            document.documentElement.dataset.theme = initialTheme;
+        })();
+    </script>
     <style>
         *,
         *::before,
@@ -32,17 +51,61 @@
             --accent: #ef4444;
             --accent2: #f97316;
             --accent-light: #f87171;
-            --bg: #080c10;
-            --bg2: #0f1419;
-            --surface: #141922;
-            --surface2: #1a1f2e;
-            --border: #1e2535;
-            --border2: #2d3748;
-            --text: #f0f4fa;
-            --muted: #6b7280;
+            --bg-base: #080c10;
+            --bg2-base: #0f1419;
+            --surface-base: #141922;
+            --surface2-base: #1a1f2e;
+            --border-base: #1e2535;
+            --border2-base: #2d3748;
+            --text-base: #f0f4fa;
+            --muted-base: #6b7280;
+            --bg: var(--bg-base);
+            --bg2: var(--bg2-base);
+            --surface: var(--surface-base);
+            --surface2: var(--surface2-base);
+            --border: var(--border-base);
+            --border2: var(--border2-base);
+            --text: var(--text-base);
+            --muted: var(--muted-base);
             --display: 'Syne', Impact, sans-serif;
             --mono: 'DM Mono', monospace;
             --glow: 0 0 30px rgba(239, 68, 68, 0.4), 0 0 60px rgba(239, 68, 68, 0.15);
+            --nav-scrolled-bg: rgba(8, 12, 16, 0.92);
+            --mobile-menu-bg: rgba(8, 12, 16, 0.98);
+            --menu-overlay-bg: rgba(0, 0, 0, 0.6);
+            --logo-vertex: rgba(240, 244, 250, 0.55);
+            --surface-highlight: rgba(255, 255, 255, 0.03);
+            --button-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            --form-sheen: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            --noise-opacity: 0.4;
+            --canvas-opacity: 0.62;
+            --canvas-blend: normal;
+            --theme-switch-bg: rgba(8, 12, 16, 0.76);
+            --theme-switch-text: #ffffff;
+        }
+
+        html[data-theme="light"] {
+            --bg: #ffffff;
+            --bg2: #f4f7fb;
+            --surface: #f8fafc;
+            --surface2: #eef2f7;
+            --border: #d5dde7;
+            --border2: #c3ceda;
+            --text: #0f172a;
+            --muted: #475569;
+            --glow: 0 0 22px rgba(239, 68, 68, 0.22), 0 0 42px rgba(239, 68, 68, 0.08);
+            --nav-scrolled-bg: rgba(255, 255, 255, 0.92);
+            --mobile-menu-bg: rgba(255, 255, 255, 0.98);
+            --menu-overlay-bg: rgba(15, 23, 42, 0.16);
+            --logo-vertex: rgba(15, 23, 42, 0.62);
+            --surface-highlight: rgba(15, 23, 42, 0.04);
+            --button-sheen: linear-gradient(135deg, rgba(15, 23, 42, 0.08), transparent);
+            --form-sheen: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.08), transparent);
+            --noise-opacity: 0.14;
+            --canvas-opacity: 0.52;
+            --canvas-blend: multiply;
+            --theme-switch-bg: rgba(255, 255, 255, 0.92);
+            --theme-switch-text: #ffffff;
         }
 
         html {
@@ -58,6 +121,7 @@
             min-height: 100dvh;
             overflow-x: hidden;
             width: 100%;
+            transition: background-color 0.35s ease, color 0.35s ease;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -135,7 +199,7 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.6rem 1.2rem;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--surface-highlight);
             border: 1px solid var(--border);
             border-radius: 100px;
             color: var(--text);
@@ -213,7 +277,7 @@
         #loader {
             position: fixed;
             inset: 0;
-            background: #080c10;
+            background: var(--bg);
             z-index: 10000;
             display: flex;
             align-items: center;
@@ -512,72 +576,7 @@
             }
         }
 
-        /* Mute toggle button */
-        #loader-mute {
-            position: absolute;
-            bottom: 2.2rem;
-            right: 2.2rem;
-            z-index: 10;
-            background: transparent;
-            border: 1px solid rgba(239, 68, 68, 0.35);
-            color: rgba(239, 68, 68, 0.7);
-            font-family: var(--mono);
-            font-size: 0.55rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            padding: 0.45rem 0.9rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: border-color 0.25s, color 0.25s;
-            opacity: 0;
-            animation: loaderTagFadeIn 0.6s 0.9s forwards;
-        }
 
-        #loader-mute:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        #loader-mute .mute-icon {
-            font-size: 0.75rem;
-            line-height: 1;
-        }
-
-        /* VU meter bars */
-        #loader-vu {
-            position: absolute;
-            bottom: 2rem;
-            left: 2.2rem;
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            height: 22px;
-            opacity: 0;
-            animation: loaderTagFadeIn 0.6s 0.9s forwards;
-        }
-
-        .vu-bar {
-            width: 3px;
-            background: var(--accent);
-            border-radius: 1px 1px 0 0;
-            transform-origin: bottom;
-            animation: vuDance var(--dur, 0.6s) ease-in-out infinite alternate;
-            opacity: 0.6;
-        }
-
-        @keyframes vuDance {
-            from {
-                transform: scaleY(0.15);
-                opacity: 0.4;
-            }
-
-            to {
-                transform: scaleY(1);
-                opacity: 0.9;
-            }
-        }
 
         /* Tagline typewriter */
         .loader-tagline {
@@ -772,7 +771,8 @@
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.55;
+            opacity: var(--canvas-opacity);
+            mix-blend-mode: var(--canvas-blend);
         }
 
         /* ═══════════════ SHOOTING COMET CANVAS ═══════════════ */
@@ -791,7 +791,7 @@
             z-index: 3;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
             pointer-events: none;
-            opacity: 0.4;
+            opacity: var(--noise-opacity);
         }
 
         /* ═══════════════ GRID BG ═══════════════ */
@@ -823,7 +823,7 @@
         }
 
         nav.scrolled {
-            background: rgba(8, 12, 16, 0.92);
+            background: var(--nav-scrolled-bg);
             backdrop-filter: blur(24px);
             border-bottom-color: var(--border);
         }
@@ -847,7 +847,47 @@
         }
 
         .logo-vertex {
-            color: rgba(240, 244, 250, 0.55);
+            color: var(--logo-vertex);
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 5.75rem;
+            right: 2.5rem;
+            z-index: 220;
+        }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.72rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--theme-switch-bg);
+            color: var(--text);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+            cursor: none;
+            transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+
+        .theme-toggle-emoji {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .theme-toggle-label {
+            font-family: var(--mono);
+            font-size: 0.64rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .logo::after {
@@ -1007,6 +1047,11 @@
             transform: translateY(110%);
         }
 
+        .h1-inner:not(.outline-word) {
+            -webkit-text-stroke: 0.35px currentColor;
+            text-shadow: 0 0 1px currentColor;
+        }
+
         .accent-word {
             color: var(--accent);
             display: inline-block;
@@ -1024,7 +1069,7 @@
         }
 
         .outline-word {
-            -webkit-text-stroke: 1.5px rgba(239, 68, 68, 0.6);
+            -webkit-text-stroke: 1.8px rgba(239, 68, 68, 0.68);
             color: rgba(220, 38, 38, 0.15);
         }
 
@@ -1067,7 +1112,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            background: var(--button-sheen);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -1571,8 +1616,9 @@
         }
 
         .person-card:hover {
-            border-color: rgba(239, 68, 68, 0.3);
-            transform: translateX(8px);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(239, 68, 68, 0.1);
         }
 
         .person-role {
@@ -2189,7 +2235,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            background: var(--form-sheen);
             transform: translateX(-100%);
         }
 
@@ -2385,7 +2431,7 @@
         .menu-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: var(--menu-overlay-bg);
             backdrop-filter: blur(4px);
             z-index: 3000;
             opacity: 0;
@@ -2406,7 +2452,7 @@
             min-width: 200px;
             max-width: 300px;
             height: 100dvh;
-            background: rgba(8, 12, 16, 0.98);
+            background: var(--mobile-menu-bg);
             backdrop-filter: blur(20px);
             border-left: 1px solid var(--border);
             flex-direction: column;
@@ -2510,6 +2556,11 @@
             .logo {
                 font-size: 1.3rem;
                 white-space: nowrap;
+            }
+
+            .theme-switcher {
+                top: 4.8rem;
+                right: 1rem;
             }
 
             .nav-links {
@@ -2722,6 +2773,16 @@
                 justify-content: space-between;
             }
 
+            .theme-switcher {
+                top: 4.35rem;
+                right: 1rem;
+                left: auto;
+            }
+
+            .theme-toggle {
+                padding: 0.7rem 0.9rem;
+            }
+
             .logo {
                 font-size: 1.4rem;
             }
@@ -2786,10 +2847,7 @@
         <!-- Particle canvas -->
         <canvas id="loader-canvas"></canvas>
 
-        <!-- VU meter (bottom-left) -->
-        <div id="loader-vu"></div>
-        <!-- Mute toggle (bottom-right) -->
-        <button id="loader-mute" aria-label="Toggle sound"><span class="mute-icon">🔊</span><span>Sound</span></button>
+
 
         <!-- Central animated content -->
         <div class="loader-content">
@@ -2890,6 +2948,13 @@
         <a href="#contact" class="cta-button"><span>Get a Quote</span></a>
         <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
     </nav>
+
+    <div class="theme-switcher">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-live="polite" aria-label="Switch theme">
+            <span class="theme-toggle-emoji" aria-hidden="true">🌙</span>
+            <span class="theme-toggle-label">Dark</span>
+        </button>
+    </div>
 
     <!-- MOBILE MENU -->
     <div class="menu-overlay" id="menuOverlay" onclick="closeMobileMenu()"></div>
@@ -3000,46 +3065,46 @@
             </div>
             <div class="service-subcategory active" data-subcategory="web-design">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">01</div>
                         <div class="service-icon-wrap">⚡</div>
                         <h3>Web Design &amp; Dev</h3>
                         <p>Custom-built websites that convert. Fast, responsive, stunning on every device.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="ecommerce">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">02</div>
                         <div class="service-icon-wrap">🛍️</div>
                         <h3>E-Commerce Stores</h3>
                         <p>Sell online with confidence. We set up stores ready to grow your digital sales.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="portals">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">03</div>
                         <div class="service-icon-wrap">🎓</div>
                         <h3>School Portals</h3>
                         <p>Modern portals — notice boards, gallery, faculty, admissions all in one place.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="landing">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">04</div>
                         <div class="service-icon-wrap">🚀</div>
                         <h3>Startup Landing Pages</h3>
                         <p>High-converting pages that capture leads from day one.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -3054,35 +3119,35 @@
             </div>
             <div class="service-subcategory active" data-subcategory="brand-full">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">05</div>
                         <div class="service-icon-wrap">🎨</div>
                         <h3>Brand Identity</h3>
                         <p>Logo, palette, typography — your visual language built to stand out.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="brand-logo">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">05A</div>
                         <div class="service-icon-wrap">✏️</div>
                         <h3>Logo Design</h3>
                         <p>Unique, memorable logos that capture your brand's essence and values.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="brand-guide">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">05B</div>
                         <div class="service-icon-wrap">📋</div>
                         <h3>Brand Guidelines</h3>
                         <p>Comprehensive style guides ensuring brand consistency across all touchpoints.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -3097,35 +3162,35 @@
             </div>
             <div class="service-subcategory active" data-subcategory="seo-maint">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">06</div>
                         <div class="service-icon-wrap">🔍</div>
                         <h3>SEO &amp; Maintenance</h3>
                         <p>Ongoing SEO and maintenance so your site keeps growing after launch.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="seo-only">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">06A</div>
                         <div class="service-icon-wrap">📈</div>
                         <h3>SEO Optimization</h3>
                         <p>Strategic keyword research and optimization to rank higher and drive organic traffic.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="service-subcategory" data-subcategory="hosting">
                 <div class="services-grid">
-                    <div class="service-card reveal">
+                    <a href="#contact" class="service-card reveal" style="text-decoration:none; color:inherit;">
                         <div class="service-num">06B</div>
                         <div class="service-icon-wrap">☁️</div>
                         <h3>Hosting &amp; Support</h3>
                         <p>Reliable hosting, backups, and 24/7 technical support for peace of mind.</p>
                         <div class="service-arrow">↗</div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -3182,8 +3247,8 @@
 
     <!-- PROJECTS -->
     <section id="projects">
-        <p class="section-label reveal">Our Work</p>
-        <h2 class="reveal">Projects<br />We've<br />Shipped</h2>
+        <p class="section-label reveal" id="projectsTag">Our Work</p>
+        <h2 class="reveal" id="projectsHeading">Projects<br />We've<br />Shipped</h2>
         <div class="filter-buttons" id="filterButtons">
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="startup">Startup</button>
@@ -3229,7 +3294,7 @@
                             class="tech-tag">Tailwind</span></div>
                 </div>
             </div>
-            <div class="project-card project-plus reveal" style="transition-delay:0.3s">
+            <a href="#contact" class="project-card project-plus reveal" style="transition-delay:0.3s; text-decoration:none; color:inherit; cursor:pointer;">
                 <div class="project-plus-image">
                     <div class="project-plus-icon">+</div>
                     <div class="project-plus-label">Your Project</div>
@@ -3239,9 +3304,9 @@
                     <h3 class="project-plus-title">Could Be Your Project</h3>
                     <p class="project-plus-desc">We're always excited for new challenges. Let's build something great.
                     </p>
-                    <a href="#contact" class="project-plus-link">Start a Project <span>→</span></a>
+                    <div class="project-plus-link" style="display:inline-block; margin-top:1rem; color:var(--accent);">Start a Project <span style="margin-left:5px;">→</span></div>
                 </div>
-            </div>
+            </a>
         </div>
     </section>
 
@@ -3385,23 +3450,6 @@
                                 style="color:var(--text);text-decoration:none;">lenstar@appvertex.in</a>
                         </div>
                     </div>
-                    <div class="contact-info-item">
-                        <span class="contact-label">Social</span>
-                        <div class="contact-value social-links" id="socialLinks">
-                            <a href="https://instagram.com/appvertex" target="_blank" class="social-link">
-                                <i class="fab fa-instagram"></i>
-                                <span>Instagram</span>
-                            </a>
-                            <a href="https://linkedin.com/company/appvertex" target="_blank" class="social-link">
-                                <i class="fab fa-linkedin-in"></i>
-                                <span>LinkedIn</span>
-                            </a>
-                            <a href="https://twitter.com/appvertex" target="_blank" class="social-link">
-                                <i class="fab fa-x-twitter"></i>
-                                <span>X / Twitter</span>
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="reveal-right">
@@ -3440,6 +3488,7 @@
             <a href="#projects">Projects</a>
             <a href="#upskill">Upskill</a>
             <a href="#contact">Contact</a>
+            <a href="admin.html" class="admin-link" style="opacity: 0.3; font-size: 0.7rem; margin-left: 1rem;"><i class="fas fa-lock"></i> Admin</a>
         </div>
     </footer>
 
@@ -3640,6 +3689,7 @@
            THREE.JS SCENE
            ═══════════════════════════════════════════════════ */
         (function () {
+            const root = document.documentElement;
             const canvas = document.getElementById('three-canvas');
             const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -3650,7 +3700,7 @@
             const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
             camera.position.set(0, 0, 14);
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.2);
             scene.add(ambient);
             const redLight = new THREE.PointLight(0xef4444, 3, 30);
             redLight.position.set(5, 5, 5);
@@ -3662,8 +3712,12 @@
             orangeLight.position.set(3, -5, 2);
             scene.add(orangeLight);
 
-            const wireMat = new THREE.MeshBasicMaterial({ color: 0xef4444, wireframe: true, transparent: true, opacity: 0.18 });
-            const wireMat2 = new THREE.MeshBasicMaterial({ color: 0xf97316, wireframe: true, transparent: true, opacity: 0.1 });
+            const wireMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true });
+            const wireMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true });
+            const tkMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true });
+            const octMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true });
+            const lineMaterials = [];
+            const particleMaterials = [];
 
             const objects = [];
 
@@ -3672,14 +3726,12 @@
             scene.add(icoMesh);
             objects.push({ mesh: icoMesh, rx: 0.003, ry: 0.005 });
 
-            const tkMesh = new THREE.Mesh(new THREE.OctahedronGeometry(1.5, 2),
-                new THREE.MeshBasicMaterial({ color: 0xa1a1a1, wireframe: true, transparent: true, opacity: 0.08 }));
+            const tkMesh = new THREE.Mesh(new THREE.OctahedronGeometry(1.5, 2), tkMat);
             tkMesh.position.set(-6, -1, -2);
             scene.add(tkMesh);
             objects.push({ mesh: tkMesh, rx: 0.004, ry: 0.003 });
 
-            const octMesh = new THREE.Mesh(new THREE.OctahedronGeometry(1.2, 0),
-                new THREE.MeshBasicMaterial({ color: 0xf87171, wireframe: true, transparent: true, opacity: 0.2 }));
+            const octMesh = new THREE.Mesh(new THREE.OctahedronGeometry(1.2, 0), octMat);
             octMesh.position.set(-3, 4, -4);
             scene.add(octMesh);
             objects.push({ mesh: octMesh, rx: -0.004, ry: 0.006 });
@@ -3691,11 +3743,11 @@
 
             /* Particles */
             const smallGeo = new THREE.SphereGeometry(0.06, 6, 6);
-            const smallMat = new THREE.MeshBasicMaterial({ color: 0xd1d5db });
             const particles = [];
             for (let i = 0; i < 60; i++) {
-                const m = new THREE.Mesh(smallGeo, smallMat.clone());
-                m.material.opacity = Math.random() * 0.3 + 0.05;
+                const particleMat = new THREE.MeshBasicMaterial({ transparent: true });
+                const m = new THREE.Mesh(smallGeo, particleMat);
+                particleMat.opacity = Math.random() * 0.24 + 0.08;
                 m.material.transparent = true;
                 m.position.set(
                     (Math.random() - 0.5) * 22,
@@ -3706,9 +3758,11 @@
                     ox: m.position.x, oy: m.position.y,
                     spd: Math.random() * 0.8 + 0.3,
                     amp: Math.random() * 0.3 + 0.05,
-                    phase: Math.random() * Math.PI * 2
+                    phase: Math.random() * Math.PI * 2,
+                    baseOpacity: particleMat.opacity
                 };
                 scene.add(m);
+                particleMaterials.push(particleMat);
                 particles.push(m);
             }
 
@@ -3720,10 +3774,51 @@
                 for (let j = i + 1; j < lpos.length; j++) {
                     if (lpos[i].distanceTo(lpos[j]) < 5) {
                         const geo = new THREE.BufferGeometry().setFromPoints([lpos[i], lpos[j]]);
-                        lineGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.06 })));
+                        const lineMat = new THREE.LineBasicMaterial({ transparent: true });
+                        lineMaterials.push(lineMat);
+                        lineGroup.add(new THREE.Line(geo, lineMat));
                     }
                 }
             }
+
+            function applySceneTheme() {
+                const isLight = root.dataset.theme === 'light';
+
+                ambient.intensity = isLight ? 0.2 : 0.34;
+
+                wireMat.color.setHex(isLight ? 0x7f1d1d : 0xef4444);
+                wireMat.opacity = isLight ? 0.3 : 0.28;
+
+                wireMat2.color.setHex(isLight ? 0x9a3412 : 0xf97316);
+                wireMat2.opacity = isLight ? 0.2 : 0.19;
+
+                tkMat.color.setHex(isLight ? 0x27272a : 0x94a3b8);
+                tkMat.opacity = isLight ? 0.14 : 0.16;
+
+                octMat.color.setHex(isLight ? 0x991b1b : 0xf87171);
+                octMat.opacity = isLight ? 0.3 : 0.3;
+
+                particleMaterials.forEach((material, index) => {
+                    const particle = particles[index];
+                    material.color.setHex(isLight ? 0x334155 : 0xcbd5e1);
+                    material.opacity = Math.min(0.42, particle.userData.baseOpacity + (isLight ? 0.07 : 0.1));
+                    material.needsUpdate = true;
+                });
+
+                lineMaterials.forEach(material => {
+                    material.color.setHex(isLight ? 0x7f1d1d : 0xef4444);
+                    material.opacity = isLight ? 0.15 : 0.16;
+                    material.needsUpdate = true;
+                });
+
+                wireMat.needsUpdate = true;
+                wireMat2.needsUpdate = true;
+                tkMat.needsUpdate = true;
+                octMat.needsUpdate = true;
+            }
+
+            applySceneTheme();
+            new MutationObserver(applySceneTheme).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 
             let mouseX = 0, mouseY = 0;
             document.addEventListener('mousemove', e => {
@@ -3839,344 +3934,16 @@
         })();
 
 
-        /* Enhanced Audio Context Setup - Device Compatible */
-        (function() {
-            let audioCtx = null;
-            let masterGain = null;
-            let isMuted = false;
-            
-            function setupAudioUnlock() {
-                const unlock = () => {
-                    if (audioCtx) return; 
-                    try {
-                        const AC = window.AudioContext || window.webkitAudioContext;
-                        audioCtx = new AC();
-                        masterGain = audioCtx.createGain();
-                        masterGain.gain.value = 0.55;
-                        masterGain.connect(audioCtx.destination);
-                        console.log('✓ Audio unlocked');
-                    } catch(e) {
-                        console.warn('Audio not available on this device');
-                    }
-                };
-                ['click', 'keydown', 'touchstart', 'touchend'].forEach(event => {
-                    document.addEventListener(event, unlock, { once: true });
-                });
-                setTimeout(unlock, 150);
-            }
-            
-            function setupMuteButton() {
-                const btn = document.getElementById('loader-mute');
-                if(!btn) return;
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    isMuted = !isMuted;
-                    const icon = btn.querySelector('.mute-icon');
-                    const text = btn.querySelector('span:last-child');
-                    if(icon) icon.textContent = isMuted ? '🔇' : '🔊';
-                    if(text) text.textContent = isMuted ? 'Muted' : 'Sound';
-                    if(audioCtx && masterGain) {
-                        const now = audioCtx.currentTime;
-                        masterGain.gain.cancelScheduledValues(now);
-                        masterGain.gain.setTargetAtTime(isMuted ? 0 : 0.55, now, 0.08);
-                    }
-                });
-            }
-            
-            window.audioSystem = {
-                getContext: () => audioCtx,
-                getMasterGain: () => masterGain,
-                isMuted: () => isMuted,
-                getUnlocked: () => !!audioCtx
-            };
-            
-            if(document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    setupAudioUnlock();
-                    setupMuteButton();
-                });
-            } else {
-                setupAudioUnlock();
-                setupMuteButton();
-            }
-        })();
+
 
         /* ═══════════════════════════════════════════════════
            LOADER – creative rebuild + Web Audio sound engine
            ═══════════════════════════════════════════════════ */
         (function () {
 
-            /* ╔══════════════════════════════════════════╗
-               ║   WEB AUDIO SOUND ENGINE                ║
-               ╚══════════════════════════════════════════╝ */
-            let audioCtx = null;
-            let masterGain = null;
-            let isMuted = false;
-            let ambientDrone = null;
-            let droneGain = null;
 
-            function initAudio() {
-                if (audioCtx) return;
-                if (window.audioSystem && window.audioSystem.getUnlocked()) {
-                    audioCtx = window.audioSystem.getContext();
-                    masterGain = window.audioSystem.getMasterGain();
-                    isMuted = window.audioSystem.isMuted();
-                    startAmbientDrone();
-                    startBootSequence();
-                }
-            }
 
-            function tryUnlock(e) {
-                initAudio();
-                if (audioCtx) {
-                    document.removeEventListener('click', tryUnlock);
-                    document.removeEventListener('keydown', tryUnlock);
-                    document.removeEventListener('touchstart', tryUnlock);
-                }
-            }
-            setTimeout(initAudio, 200);
-            document.addEventListener('click', tryUnlock, { once: true });
-            document.addEventListener('keydown', tryUnlock, { once: true });
-            document.addEventListener('touchstart', tryUnlock, { once: true });
 
-            /* ────────────────────────────────────────────
-               SOUND PRIMITIVES
-               ──────────────────────────────────────────── */
-
-            /* Low sub-bass ambient drone */
-            function startAmbientDrone() {
-                if (!audioCtx || !masterGain) return;
-                droneGain = audioCtx.createGain();
-                droneGain.gain.setValueAtTime(0, audioCtx.currentTime);
-                droneGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 1.2);
-
-                const osc1 = audioCtx.createOscillator();
-                const osc2 = audioCtx.createOscillator();
-                const osc3 = audioCtx.createOscillator();
-                osc1.type = 'sine'; osc1.frequency.value = 55;   /* A1 sub bass */
-                osc2.type = 'sine'; osc2.frequency.value = 82.4; /* E2 fifth */
-                osc3.type = 'triangle'; osc3.frequency.value = 110; /* A2 octave */
-
-                /* Slow LFO wobble on sub */
-                const lfo = audioCtx.createOscillator();
-                const lfoGain = audioCtx.createGain();
-                lfo.frequency.value = 0.18;
-                lfoGain.gain.value = 1.8;
-                lfo.connect(lfoGain);
-                lfoGain.connect(osc1.frequency);
-                lfo.start();
-
-                /* Slight chorus detune */
-                const osc2b = audioCtx.createOscillator();
-                osc2b.type = 'sine';
-                osc2b.frequency.value = 83.1;
-                const cGain = audioCtx.createGain();
-                cGain.gain.value = 0.3;
-                osc2b.connect(cGain); cGain.connect(droneGain);
-                osc2b.start();
-
-                osc1.connect(droneGain);
-                osc2.connect(droneGain);
-                osc3.connect(droneGain);
-                droneGain.connect(masterGain);
-                osc1.start(); osc2.start(); osc3.start();
-                ambientDrone = [osc1, osc2, osc2b, osc3, lfo];
-            }
-
-            function stopAmbientDrone() {
-                if (!ambientDrone || !audioCtx) return;
-                droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.3);
-                setTimeout(() => { ambientDrone.forEach(o => { try { o.stop(); } catch (e) { } }); }, 600);
-            }
-
-            /* Boot startup sweep — rising filtered noise */
-            function startBootSequence() {
-                if (!audioCtx || !masterGain) return;
-                const bufLen = audioCtx.sampleRate * 1.4;
-                const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-                const data = buf.getChannelData(0);
-                for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1);
-                const src = audioCtx.createBufferSource();
-                src.buffer = buf;
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(80, audioCtx.currentTime);
-                filter.frequency.linearRampToValueAtTime(3200, audioCtx.currentTime + 1.3);
-                filter.Q.value = 3;
-                const g = audioCtx.createGain();
-                g.gain.setValueAtTime(0, audioCtx.currentTime);
-                g.gain.linearRampToValueAtTime(0.14, audioCtx.currentTime + 0.05);
-                g.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 1.4);
-                src.connect(filter); filter.connect(g); g.connect(masterGain);
-                src.start();
-            }
-
-            /* Segment tick — short pitched click */
-            function playSegTick(segIndex) {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                const freq = 660 + segIndex * 28; /* rises as bar fills */
-                const osc = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(freq, now);
-                osc.frequency.exponentialRampToValueAtTime(freq * 0.6, now + 0.04);
-                g.gain.setValueAtTime(0.10, now);
-                g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-                osc.connect(g); g.connect(masterGain);
-                osc.start(now); osc.stop(now + 0.07);
-            }
-
-            /* Status change — descending two-tone blip */
-            function playStatusChange() {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                [[880, 0], [660, 0.07]].forEach(([f, delay]) => {
-                    const osc = audioCtx.createOscillator();
-                    const g = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = f;
-                    g.gain.setValueAtTime(0.08, now + delay);
-                    g.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.14);
-                    osc.connect(g); g.connect(masterGain);
-                    osc.start(now + delay); osc.stop(now + delay + 0.15);
-                });
-            }
-
-            /* Tagline rotate — soft digital whoosh */
-            function playTaglineSwitch() {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                const bufLen = Math.floor(audioCtx.sampleRate * 0.18);
-                const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-                const d = buf.getChannelData(0);
-                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1);
-                const src = audioCtx.createBufferSource();
-                src.buffer = buf;
-                const filt = audioCtx.createBiquadFilter();
-                filt.type = 'highpass';
-                filt.frequency.setValueAtTime(3000, now);
-                filt.frequency.linearRampToValueAtTime(8000, now + 0.18);
-                const g = audioCtx.createGain();
-                g.gain.setValueAtTime(0.06, now);
-                g.gain.linearRampToValueAtTime(0, now + 0.18);
-                src.connect(filt); filt.connect(g); g.connect(masterGain);
-                src.start();
-            }
-
-            /* Glitch burst — harsh noise + frequency scramble */
-            function playGlitchBurst() {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                /* Noise burst */
-                const bufLen = Math.floor(audioCtx.sampleRate * 0.08);
-                const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-                const d = buf.getChannelData(0);
-                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1);
-                const src = audioCtx.createBufferSource();
-                src.buffer = buf;
-                const filt = audioCtx.createBiquadFilter();
-                filt.type = 'bandpass';
-                filt.frequency.value = 1200;
-                filt.Q.value = 0.5;
-                const g = audioCtx.createGain();
-                g.gain.setValueAtTime(0.18, now);
-                g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-                src.connect(filt); filt.connect(g); g.connect(masterGain);
-                src.start();
-                /* Pitch squeal */
-                const osc = audioCtx.createOscillator();
-                const og = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(180, now);
-                osc.frequency.linearRampToValueAtTime(2400, now + 0.06);
-                osc.frequency.linearRampToValueAtTime(300, now + 0.09);
-                og.gain.setValueAtTime(0.07, now);
-                og.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-                osc.connect(og); og.connect(masterGain);
-                osc.start(now); osc.stop(now + 0.10);
-                /* Boost drone briefly */
-                if (droneGain) {
-                    droneGain.gain.setTargetAtTime(0.15, now, 0.01);
-                    droneGain.gain.setTargetAtTime(0.06, now + 0.12, 0.05);
-                }
-            }
-
-            /* Completion fanfare — ascending arpeggio chime */
-            function playCompletionFanfare() {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                const notes = [440, 554.4, 659.3, 880, 1108.7]; /* A4 C#5 E5 A5 C#6 */
-                notes.forEach((freq, i) => {
-                    const t = now + i * 0.07;
-                    const osc = audioCtx.createOscillator();
-                    const g = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    g.gain.setValueAtTime(0, t);
-                    g.gain.linearRampToValueAtTime(0.13, t + 0.02);
-                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
-                    osc.connect(g); g.connect(masterGain);
-                    osc.start(t); osc.stop(t + 0.52);
-                    /* Overtone shimmer */
-                    const osc2 = audioCtx.createOscillator();
-                    const g2 = audioCtx.createGain();
-                    osc2.type = 'sine';
-                    osc2.frequency.value = freq * 2;
-                    g2.gain.setValueAtTime(0, t);
-                    g2.gain.linearRampToValueAtTime(0.045, t + 0.02);
-                    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-                    osc2.connect(g2); g2.connect(masterGain);
-                    osc2.start(t); osc2.stop(t + 0.36);
-                });
-            }
-
-            /* Exit slice — dramatic low thud + reverse hiss */
-            function playExitSlice() {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                /* Sub thud */
-                const osc = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(120, now);
-                osc.frequency.exponentialRampToValueAtTime(30, now + 0.55);
-                g.gain.setValueAtTime(0.35, now);
-                g.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-                osc.connect(g); g.connect(masterGain);
-                osc.start(now); osc.stop(now + 0.56);
-                /* High hiss sweep out */
-                const bufLen = Math.floor(audioCtx.sampleRate * 0.65);
-                const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-                const d = buf.getChannelData(0);
-                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1);
-                const src = audioCtx.createBufferSource();
-                src.buffer = buf;
-                const filt = audioCtx.createBiquadFilter();
-                filt.type = 'highpass';
-                filt.frequency.setValueAtTime(400, now);
-                filt.frequency.linearRampToValueAtTime(12000, now + 0.65);
-                const hg = audioCtx.createGain();
-                hg.gain.setValueAtTime(0.12, now);
-                hg.gain.linearRampToValueAtTime(0, now + 0.65);
-                src.connect(filt); filt.connect(hg); hg.connect(masterGain);
-                src.start();
-                stopAmbientDrone();
-            }
-
-            /* ── VU meter animation ── */
-            const vuContainer = document.getElementById('loader-vu');
-            const VU_BARS = 8;
-            const vuDurations = [0.55, 0.7, 0.45, 0.8, 0.6, 0.5, 0.75, 0.65];
-            if (vuContainer) {
-                for (let i = 0; i < VU_BARS; i++) {
-                    const b = document.createElement('div');
-                    b.className = 'vu-bar';
-                    b.style.setProperty('--dur', vuDurations[i] + 's');
-                    b.style.animationDelay = (i * 0.06) + 's';
-                    vuContainer.appendChild(b);
-                }
-            }
 
             /* ╔══════════════════════════════════════════╗
                ║   PARTICLE CANVAS                       ║
@@ -4235,7 +4002,6 @@
             const logoEl = document.querySelector('.loader-logo');
             function triggerGlitch() {
                 if (!logoEl) return;
-                playGlitchBurst();
                 logoEl.classList.add('glitching');
                 setTimeout(() => logoEl.classList.remove('glitching'), 360);
             }
@@ -4266,7 +4032,6 @@
             let tagIdx = 0, stIdx = 0;
             const tagIv = setInterval(() => {
                 tagIdx = (tagIdx + 1) % taglines.length;
-                playTaglineSwitch();
                 taglineEl.style.opacity = '0';
                 setTimeout(() => {
                     taglineEl.textContent = taglines[tagIdx];
@@ -4292,8 +4057,6 @@
                 if (litCount > lastLitCount) {
                     for (let i = lastLitCount; i < litCount; i++) {
                         segs[i].classList.add('lit');
-                        /* stagger the tick sounds slightly */
-                        ((idx) => setTimeout(() => playSegTick(idx), (idx - lastLitCount) * 18))(i);
                     }
                     lastLitCount = litCount;
                 }
@@ -4303,7 +4066,6 @@
                 if (newIdx !== stIdx) {
                     stIdx = newIdx;
                     statusEl.textContent = statusMsgs[stIdx];
-                    playStatusChange();
                 }
 
                 /* ── COMPLETION ── */
@@ -4312,11 +4074,7 @@
                     statusEl.textContent = 'Ready';
                     segs.forEach(s => s.classList.add('lit'));
 
-                    /* Fanfare then exit */
-                    playCompletionFanfare();
-
                     setTimeout(() => {
-                        playExitSlice();
                         cancelAnimationFrame(lcRaf);
                         loader.style.transition = 'clip-path 0.7s cubic-bezier(0.76,0,0.24,1), opacity 0.7s ease';
                         loader.style.clipPath = 'inset(50% 0 50% 0)';
@@ -4576,262 +4334,88 @@
 
 
         /* ═══════════════════════════════════════════════════
-           DYNAMIC CONTENT LOADER
+           THEME SWITCHER
            ═══════════════════════════════════════════════════ */
-        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:8000'
-            : 'https://appvertex-backend-production-82d7.up.railway.app';
+        (function () {
+            const STORAGE_KEY = 'appvertex-theme';
+            const root = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const emoji = toggle ? toggle.querySelector('.theme-toggle-emoji') : null;
+            const label = toggle ? toggle.querySelector('.theme-toggle-label') : null;
+            const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-        async function fetchContent() {
-            try {
-                const res = await fetch(API_BASE + '/api/content');
-                const data = await res.json();
+            if (!toggle || !emoji || !label) return;
 
-                // 1. BRANDING & SEO
-                if (data.branding) {
-                    const r = document.documentElement.style;
-                    if (data.branding.accent && data.branding.accent.length > 3) r.setProperty('--accent', data.branding.accent);
-                    if (data.branding.bg && data.branding.bg.length > 3) r.setProperty('--bg', data.branding.bg);
-                    if (data.branding.surface && data.branding.surface.length > 3) r.setProperty('--surface', data.branding.surface);
-                    if (data.branding.text && data.branding.text.length > 3) r.setProperty('--text', data.branding.text);
+            const normalizeTheme = (value) => value === 'light' ? 'light' : 'dark';
 
-                    if (data.branding.fontHeading) {
-                        const val = data.branding.fontHeading === 'Syne' ? "'Syne', Impact, sans-serif" : data.branding.fontHeading + ', sans-serif';
-                        r.setProperty('--display', val);
-                    }
-                    if (data.branding.fontBody) {
-                        const val = data.branding.fontBody === 'DM Mono' ? "'DM Mono', monospace" : data.branding.fontBody + ', monospace';
-                        r.setProperty('--mono', val);
-                    }
-                }
-                if (data.seo && data.seo.title) document.title = data.seo.title;
-
-                // 2. NAVBAR
-                if (data.navbar) {
-                    const logoApp = document.querySelector('.logo-app');
-                    const logoVertex = document.querySelector('.logo-vertex');
-                    if (logoApp && data.navbar.logoText) {
-                        // For "AppVerteX", keep it as one unit. For other text like "Web Agency", split by capitals
-                        let appText = 'App';
-                        let vertexText = 'VerteX';
-
-                        if (data.navbar.logoText === 'AppVerteX') {
-                            // Keep AppVerteX as is
-                            logoApp.textContent = 'App';
-                            logoVertex.textContent = 'VerteX';
-                        } else {
-                            // For custom text, split by capital letters
-                            const words = data.navbar.logoText.match(/[A-Z][a-z]+/g) || [data.navbar.logoText];
-                            logoApp.textContent = words[0] || 'App';
-                            logoVertex.textContent = words.slice(1).join('') || 'VerteX';
-                        }
-                    }
-                    const navCta = document.querySelector('.cta-button span');
-                    if (navCta && data.navbar.ctaText) navCta.textContent = data.navbar.ctaText;
-
-                    if (data.navbar.links && data.navbar.links.length > 0) {
-                        const navLinksWrap = document.querySelector('.nav-links');
-                        const mobileMenuWrap = document.getElementById('mobileMenu');
-                        if (navLinksWrap) {
-                            navLinksWrap.innerHTML = data.navbar.links.map(l => `<a href="${l.url}">${l.label}</a>`).join('');
-                        }
-                        if (mobileMenuWrap) {
-                            mobileMenuWrap.innerHTML = `<button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">✕</button>` +
-                                data.navbar.links.map(l => `<a href="${l.url}" onclick="closeMobileMenu()">${l.label}</a>`).join('') +
-                                `<a href="#contact" onclick="closeMobileMenu()">Contact</a>`;
-                        }
-                    }
-                }
-
-                // 3. HERO
-                if (data.hero) {
-                    const heroTitle = document.getElementById('heroTitle');
-                    const heroSubtitle = document.getElementById('heroSubtitle');
-                    const heroBtns = document.querySelector('.hero-buttons');
-
-                    if (heroTitle && data.hero.title) {
-                        const words = data.hero.title.split(' ');
-                        let html = '';
-                        if (words.length >= 4) {
-                            html = `
-                                <span class="h1-line"><span class="h1-inner">${words.slice(0, 2).join(' ')}</span></span>
-                                <span class="h1-line"><span class="h1-inner accent-word" data-text="${words[2]}">${words[2]}</span></span>
-                                <span class="h1-line"><span class="h1-inner outline-word">${words.slice(3).join(' ')}</span></span>
-                            `;
-                        } else if (words.length >= 3) {
-                            html = `
-                                <span class="h1-line"><span class="h1-inner">${words[0]}</span></span>
-                                <span class="h1-line"><span class="h1-inner accent-word" data-text="${words[1]}">${words[1]}</span></span>
-                                <span class="h1-line"><span class="h1-inner outline-word">${words.slice(2).join(' ')}</span></span>
-                            `;
-                        } else {
-                            html = `<span class="h1-line"><span class="h1-inner">${data.hero.title}</span></span>`;
-                        }
-                        heroTitle.innerHTML = html;
-                    }
-                    if (heroSubtitle && data.hero.subtitle) heroSubtitle.innerText = data.hero.subtitle;
-                    if (heroBtns && (data.hero.cta1 || data.hero.cta2)) {
-                        heroBtns.innerHTML = `
-                            <a href="${data.hero.cta1Url || '#contact'}" class="btn-primary">${data.hero.cta1 || 'Get Started'}</a>
-                            <a href="${data.hero.cta2Url || '#projects'}" class="btn-secondary">${data.hero.cta2 || 'See Our Work'} <span class="arr">↗</span></a>
-                        `;
-                    }
-                }
-
-                // 4. ABOUT & TAGLINE
-                if (data.about) {
-                    const aboutHeading = document.getElementById('aboutHeading');
-                    const aboutBody = document.getElementById('aboutBody');
-                    if (aboutHeading && data.about.heading) aboutHeading.textContent = data.about.heading;
-                    if (aboutBody && data.about.body) aboutBody.innerHTML = `<p>${data.about.body}</p> <p>${data.about.mission || ''}</p>`;
-
-                    const statNumbers = document.querySelectorAll('.stat-number');
-                    if (statNumbers.length >= 3) {
-                        statNumbers[0].setAttribute('data-target', data.about.projects || '200');
-                        statNumbers[1].setAttribute('data-target', data.about.satisfaction ? data.about.satisfaction.toString().replace('%', '') : '100');
-                        statNumbers[2].setAttribute('data-target', data.about.year || '24');
-                    }
-                }
-
-                // 5. SERVICES
-                if (data.services) {
-                    const sTag = document.querySelector('#services .section-label');
-                    const sHeading = document.querySelector('#services h2');
-                    if (sTag && data.services.tag) sTag.textContent = data.services.tag;
-                    if (sHeading && data.services.heading) sHeading.innerHTML = data.services.heading.replace(' ', '<br />');
-
-                    if (data.services.items && data.services.items.length > 0) {
-                        const servicesGrid = document.querySelector('.services-grid');
-                        if (servicesGrid) {
-                            servicesGrid.innerHTML = data.services.items.map((s, i) => `
-                                <div class="service-card reveal">
-                                    <div class="service-num">${(i + 1).toString().padStart(2, '0')}</div>
-                                    <div class="service-icon-wrap">${s.icon || '⚡'}</div>
-                                    <h3>${s.title}</h3>
-                                    <p>${s.description}</p>
-                                    <div class="service-arrow">↗</div>
-                                </div>
-                            `).join('');
-                        }
-                    }
-                }
-
-                // 6. PORTFOLIO
-                if (data.portfolio && data.portfolio.items) {
-                    const portfolioGrid = document.getElementById('projectsGrid');
-                    if (portfolioGrid) {
-                        portfolioGrid.innerHTML = data.portfolio.items.map((p, i) => `
-                            <div class="project-card reveal" data-category="${p.category.toLowerCase()}">
-                                <div class="project-image" style="background-image: url('${p.image}'); background-size: cover; background-position: center;">
-                                    ${!p.image ? '<span>🚀</span>' : ''}
-                                </div>
-                                <div class="project-info">
-                                    <div class="project-header"><span class="project-tag">${p.category}</span><span class="project-year">${p.year}</span></div>
-                                    <h3 class="project-title">${p.name}</h3>
-                                    <p class="project-desc">${p.description}</p>
-                                </div>
-                            </div>
-                        `).join('') + `
-                            <div class="project-card project-plus reveal">
-                                <div class="project-plus-image"><div class="project-plus-icon">+</div><div class="project-plus-label">Your Project</div></div>
-                                <div class="project-info">
-                                    <span class="project-plus-status">Coming Soon</span>
-                                    <h3 class="project-title">Future Ideas</h3>
-                                    <p class="project-desc">We're always looking for new challenges.</p>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-
-                // 7. TESTIMONIALS
-                if (data.testimonials && data.testimonials.items) {
-                    const tHeading = document.getElementById('testimonialsHeading');
-                    const tGrid = document.getElementById('testimonialsGrid');
-                    if (tHeading && data.testimonials.heading) tHeading.innerHTML = data.testimonials.heading.replace(' ', '<br />');
-                    if (tGrid) {
-                        tGrid.innerHTML = data.testimonials.items.map((t, i) => `
-                            <div class="testimonial-card reveal" style="transition-delay: ${i * 0.1}s">
-                                <div class="testimonial-stars">${'★'.repeat(parseInt(t.rating) || 5)}</div>
-                                <p class="testimonial-text">"${t.text}"</p>
-                                <div class="testimonial-author">
-                                    ${t.photo ?
-                                `<div class="author-avatar" style="background-image: url('${t.photo}'); background-size: cover; background-position: center; border: none;"></div>` :
-                                `<div class="author-avatar">${t.name.split(' ').map(n => n[0]).join('')}</div>`
-                            }
-                                    <div>
-                                        <div class="author-name">${t.name}</div>
-                                        <div class="author-role">${t.company || ''}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-
-                // 8. CONTACT INFO
-                if (data.contact) {
-                    if (data.contact.email) {
-                        const contactEmail = document.getElementById('contactEmail');
-                        if (contactEmail) contactEmail.textContent = data.contact.email;
-                    }
-                    if (data.contact.social) {
-                        const socialWrap = document.getElementById('socialLinks');
-                        if (socialWrap) {
-                            let socialHtml = '';
-                            if (data.contact.social.instagram) {
-                                socialHtml += `
-                                    <a href="${data.contact.social.instagram}" target="_blank" class="social-link">
-                                        <i class="fab fa-instagram"></i>
-                                        <span>Instagram</span>
-                                    </a>`;
-                            }
-                            if (data.contact.social.linkedin) {
-                                socialHtml += `
-                                    <a href="${data.contact.social.linkedin}" target="_blank" class="social-link">
-                                        <i class="fab fa-linkedin-in"></i>
-                                        <span>LinkedIn</span>
-                                    </a>`;
-                            }
-                            if (data.contact.social.twitter) {
-                                socialHtml += `
-                                    <a href="${data.contact.social.twitter}" target="_blank" class="social-link">
-                                        <i class="fab fa-x-twitter"></i>
-                                        <span>Twitter</span>
-                                    </a>`;
-                            }
-                            if (socialHtml) socialWrap.innerHTML = socialHtml;
-                        }
-                    }
-                }
-
-                // 8. FOOTER
-                if (data.footer) {
-                    const fTagline = document.querySelector('.footer-text');
-                    if (fTagline) fTagline.textContent = data.footer.copyright || '© 2025 AppVerteX';
-                }
-
-                // Re-trigger scroll reveal animations after dynamic injection
-                if (typeof ScrollReveal !== 'undefined') {
-                    ScrollReveal().reveal('.reveal', { distance: '50px', duration: 1000, easing: 'ease-out', origin: 'bottom', interval: 100 });
-                }
-
-            } catch (err) {
-                console.error('Failed to fetch content:', err);
+            function syncToggle(theme) {
+                const isDark = theme === 'dark';
+                emoji.textContent = isDark ? '🌙' : '☀️';
+                label.textContent = isDark ? 'Dark' : 'Light';
+                toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
             }
-        }
 
+            function applyTheme(theme, persist = true) {
+                const nextTheme = normalizeTheme(theme);
+                root.dataset.theme = nextTheme;
+                syncToggle(nextTheme);
 
+                if (persist) {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, nextTheme);
+                    } catch (err) {
+                        console.warn('Could not store theme preference:', err);
+                    }
+                }
+            }
 
+            toggle.addEventListener('click', () => {
+                const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                applyTheme(nextTheme);
+            });
 
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchContent();
-        });
+            if (mediaQuery) {
+                const handleSystemThemeChange = (event) => {
+                    let savedTheme = null;
+                    try {
+                        savedTheme = localStorage.getItem(STORAGE_KEY);
+                    } catch (err) {
+                        console.warn('Could not read theme preference:', err);
+                    }
+
+                    if (savedTheme !== 'light' && savedTheme !== 'dark') {
+                        applyTheme(event.matches ? 'dark' : 'light', false);
+                    }
+                };
+
+                if (typeof mediaQuery.addEventListener === 'function') {
+                    mediaQuery.addEventListener('change', handleSystemThemeChange);
+                } else if (typeof mediaQuery.addListener === 'function') {
+                    mediaQuery.addListener(handleSystemThemeChange);
+                }
+            }
+
+            applyTheme(root.dataset.theme, false);
+        })();
+
 
         /* ═══════════════════════════════════════════════════
-           FORM HANDLERS
+           STATIC FORM HANDLERS
            ═══════════════════════════════════════════════════ */
-        async function handleContactSubmit(e) {
+        function buildMailtoLink(to, subject, body) {
+            return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        function resetFormButton(button, text, delay = 2500) {
+            setTimeout(() => {
+                button.textContent = text;
+                button.classList.remove('success');
+                button.disabled = false;
+            }, delay);
+        }
+
+        function handleContactSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('contactBtn');
             const form = e.target;
@@ -4842,30 +4426,29 @@
                 message: `Project Type: ${form.querySelectorAll('input')[2].value} \n\n${form.querySelector('textarea').value} `
             };
 
-            btn.textContent = 'Sending...';
+            btn.textContent = 'Opening Mail App...';
             btn.disabled = true;
 
             try {
-                const res = await fetch(API_BASE + '/api/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await res.json();
-                if (result.success) {
-                    btn.textContent = 'Message Sent! ✓';
-                    btn.classList.add('success');
-                    form.reset();
-                    setTimeout(() => { btn.textContent = 'Send Message →'; btn.classList.remove('success'); btn.disabled = false; }, 3000);
-                } else {
-                    throw new Error();
-                }
-            } catch {
-                btn.textContent = 'Failed. Try again.';
+                const mailto = buildMailtoLink(
+                    'info@appvertex.in',
+                    `New Project Inquiry - ${data.name}`,
+                    `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`
+                );
+                window.location.href = mailto;
+                btn.textContent = 'Email Draft Ready ✓';
+                btn.classList.add('success');
+                form.reset();
+                resetFormButton(btn, 'Send Message →', 3000);
+            } catch (err) {
+                console.error('Mailto failed:', err);
+                btn.textContent = 'Could not open email app.';
                 btn.style.background = '#dc2626';
                 setTimeout(() => { btn.textContent = 'Send Message →'; btn.style.background = ''; btn.disabled = false; }, 3000);
             }
-        } async function handleUpskillSubmit(e) {
+        }
+
+        function handleUpskillSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('upskillBtn');
             const form = e.target;
@@ -4876,30 +4459,133 @@
                 message: `Want to learn: ${form.querySelectorAll('select')[0].value} \nLevel: ${form.querySelectorAll('select')[1].value} \n\nStory: ${form.querySelector('textarea').value}`
             };
 
-            btn.textContent = 'Sending...';
+            btn.textContent = 'Opening Mail App...';
             btn.disabled = true;
 
             try {
-                const res = await fetch(API_BASE + '/api/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await res.json();
-                if (result.success) {
-                    btn.textContent = "Application Sent! We'll be in touch ✓";
-                    btn.classList.add('success');
-                    form.reset();
-                    setTimeout(() => { btn.textContent = "I'm Ready — Let's Go →"; btn.classList.remove('success'); btn.disabled = false; }, 3500);
-                } else {
-                    throw new Error();
-                }
-            } catch {
-                btn.textContent = 'Failed. Try again.';
+                const mailto = buildMailtoLink(
+                    'info@appvertex.in',
+                    `Upskill Application - ${data.name}`,
+                    `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`
+                );
+                window.location.href = mailto;
+                btn.textContent = "Application Draft Ready ✓";
+                btn.classList.add('success');
+                form.reset();
+                resetFormButton(btn, "I'm Ready — Let's Go →", 3500);
+            } catch (err) {
+                console.error('Mailto failed:', err);
+                btn.textContent = 'Could not open email app.';
                 btn.style.background = '#dc2626';
                 setTimeout(() => { btn.textContent = "I'm Ready — Let's Go →"; btn.style.background = ''; btn.disabled = false; }, 3000);
             }
         }
+        /* ═══════════════════════════════════════════════════
+           CLOUD DATA SYNC (Firebase Firestore)
+           ═══════════════════════════════════════════════════ */
+        async function syncWithCloud() {
+            try {
+                // Dynamically import Firebase
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+                const { getFirestore, doc, getDoc, getDocs, collection } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+                const { default: firebaseConfig } = await import("./firebase-config.js");
+
+                // Initialize
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+
+                // Load Testimonials
+                const testSnap = await getDocs(collection(db, "testimonials"));
+                const testimonialsData = testSnap.docs.map(doc => doc.data());
+
+                // Load Projects
+                const projSnap = await getDocs(collection(db, "projects"));
+                const projectsData = projSnap.docs.map(doc => doc.data());
+
+                // Load Footer
+                const footerSnap = await getDoc(doc(db, "settings", "footer"));
+                
+                // Update Footer Year
+                if (footerSnap.exists()) {
+                    const year = footerSnap.data().year;
+                    document.querySelectorAll('.footer-text').forEach(el => {
+                        el.textContent = el.textContent.replace(/© \d{4}/, `© ${year}`);
+                    });
+                }
+
+                // Render Testimonials
+                if (testimonialsData.length > 0) {
+                    const grid = document.getElementById('testimonialsGrid');
+                    if (grid) {
+                        grid.innerHTML = testimonialsData.map(t => `
+                            <div class="testimonial-card reveal">
+                                <div class="testimonial-stars">${'★'.repeat(t.rating)}</div>
+                                <p class="testimonial-text">"${t.text}"</p>
+                                <div class="testimonial-author">
+                                    ${t.image 
+                                        ? `<img src="${t.image}" class="author-avatar" alt="${t.name}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(239,68,68,0.3);">`
+                                        : `<div class="author-avatar">${t.initials}</div>`
+                                    }
+                                    <div>
+                                        <div class="author-name">${t.name}</div>
+                                        <div class="author-role">${t.role}</div>
+                                    </div>
+                                </div>
+                            </div>`).join('');
+                    }
+                }
+
+                // Render Projects
+                if (projectsData.length > 0) {
+                    const grid = document.getElementById('projectsGrid');
+                    if (grid) {
+                        const projectPlusHTML = `
+                            <div class="project-card project-plus reveal" style="transition-delay:0.3s">
+                                <div class="project-plus-image">
+                                    <div class="project-plus-icon">+</div>
+                                    <div class="project-plus-label">Your Project</div>
+                                </div>
+                                <div class="project-info">
+                                    <span class="project-plus-status">Coming Soon</span>
+                                    <h3 class="project-plus-title">Could Be Your Project</h3>
+                                    <p class="project-plus-desc">We're always excited for new challenges. Let's build something great.</p>
+                                    <a href="#contact" class="project-plus-link">Start a Project <span>→</span></a>
+                                </div>
+                            </div>`;
+                        
+                        grid.innerHTML = projectsData.map((p, i) => `
+                            <div class="project-card reveal" data-category="${p.category}" style="transition-delay:${i * 0.1}s">
+                                <div class="project-image" style="background:${p.color};">
+                                    ${p.image 
+                                        ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}">`
+                                        : `<span>${p.emoji}</span>`
+                                    }
+                                </div>
+                                <div class="project-info">
+                                    <div class="project-header">
+                                        <span class="project-tag">${p.category}</span>
+                                        <span class="project-year">${p.year}</span>
+                                    </div>
+                                    <h3 class="project-title">${p.name}</h3>
+                                    <p class="project-desc">${p.description}</p>
+                                    <div class="project-tech">
+                                        ${p.technologies.map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>`).join('') + projectPlusHTML;
+                    }
+                }
+                
+                // Re-trigger scroll reveal since content was replaced
+                if (window.ScrollReveal) window.ScrollReveal().sync();
+
+            } catch (err) {
+                console.warn("Firebase sync missed. Using static content.", err);
+            }
+        }
+
+        // Run sync on load
+        window.addEventListener('load', syncWithCloud);
     </script>
 </body>
 

@@ -1,1679 +1,932 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppVerteX | Admin Panel</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <title>AppVerteX Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg: #070b0f;
-            --surface: #0d1117;
-            --surface2: #161b22;
-            --accent: #ef4444;
-            --accent2: #f97316;
-            --green: #10b981;
-            --blue: #3b82f6;
-            --text: #f0f6fc;
-            --muted: #7d8590;
-            --border: rgba(255, 255, 255, 0.08);
+            --primary: #ef4444;
+            --primary-dark: #dc2626;
+            --bg-dark: #080c10;
+            --bg-card: #141922;
+            --border: #1e2535;
+            --text: #f0f4fa;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
             color: var(--text);
-            font-family: 'Space Grotesk', sans-serif;
             min-height: 100vh;
         }
 
-        /* LOGIN */
-        #loginOverlay {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
+        /* ───────────────────────────────────────────
+           LOGIN SCREEN
+        ─────────────────────────────────────────── */
+        #loginScreen {
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 999;
-            transition: opacity 0.4s ease;
-        }
-
-        #loginOverlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .login-card {
-            width: 380px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2.5rem;
+            min-height: 100vh;
+            background: var(--bg-dark);
             position: relative;
             overflow: hidden;
         }
 
-        .login-card::before {
+        #loginScreen::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(239,68,68,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239,68,68,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        #loginScreen::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(239,68,68,0.08) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+            animation: loginCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes loginCardIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .login-logo {
-            font-size: 1.6rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.03em;
-        }
-
-        .login-logo span {
-            color: var(--accent);
-        }
-
-        .login-sub {
-            color: var(--muted);
-            font-size: 0.8rem;
-            margin-bottom: 2rem;
-        }
-
-        .login-card label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--muted);
+            text-align: center;
             margin-bottom: 0.5rem;
         }
 
-        .login-card input {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.75rem 1rem;
-            font-family: 'JetBrains Mono', monospace;
+        .login-logo span { color: var(--primary); }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            color: var(--primary);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 99px;
+            width: fit-content;
+            margin: 0 auto 2rem;
+        }
+
+        .login-form .form-group { margin-bottom: 1.25rem; }
+
+        .login-input-wrap { position: relative; }
+        .login-input-wrap i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
             font-size: 0.9rem;
-            border-radius: 6px;
-            outline: none;
-            margin-bottom: 1.5rem;
-            transition: border-color 0.2s;
         }
 
-        .login-card input:focus {
-            border-color: var(--accent);
-        }
-
-        .btn-primary {
+        .login-form input {
             width: 100%;
-            background: var(--accent);
+            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 0.75rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.85rem;
+            border-radius: 10px;
             font-weight: 600;
-            letter-spacing: 0.03em;
-            border-radius: 6px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             transition: all 0.2s;
         }
 
-        .btn-primary:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
+        .login-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
         }
 
-        .login-hint {
-            text-align: center;
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .login-error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
             margin-top: 1rem;
-            color: var(--muted);
-            font-size: 0.72rem;
-            font-family: 'JetBrains Mono', monospace;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        /* LAYOUT */
-        #app {
+        .login-error.show { display: flex; }
+
+        /* ───────────────────────────────────────────
+           ADMIN PANEL
+        ─────────────────────────────────────────── */
+        #adminPanel { display: none; }
+        #adminPanel.visible { display: block; }
+
+        .admin-container {
             display: flex;
             min-height: 100vh;
         }
 
         .sidebar {
-            width: 220px;
-            background: var(--surface);
+            width: 260px;
+            background: var(--bg-card);
             border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            z-index: 50;
-            overflow-y: auto;
         }
 
-        .sidebar-logo {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-
-        .sidebar-logo h1 {
-            font-size: 1.2rem;
+        .logo {
+            font-family: 'DM Mono', monospace;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -0.02em;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .sidebar-logo h1 span {
-            color: var(--accent);
-        }
+        .logo span { color: var(--primary); }
 
-        .sidebar-logo p {
-            font-size: 0.65rem;
-            color: var(--muted);
+        .nav-section { margin-bottom: 2rem; }
+        .nav-title {
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-top: 0.1rem;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 1rem 0;
-        }
-
-        .nav-section-label {
-            font-size: 0.6rem;
-            font-weight: 600;
             letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--muted);
-            padding: 0.5rem 1.5rem;
-            margin-top: 0.5rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-weight: 600;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.6rem 1.5rem;
-            color: var(--muted);
-            font-size: 0.82rem;
-            font-weight: 500;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
             cursor: pointer;
-            transition: all 0.15s;
-            border-left: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.9rem;
         }
 
-        .nav-item:hover {
+        .nav-item:hover, .nav-item.active {
+            background: rgba(239, 68, 68, 0.1);
             color: var(--text);
-            background: rgba(255, 255, 255, 0.03);
         }
 
-        .nav-item.active {
-            color: var(--text);
-            background: rgba(239, 68, 68, 0.08);
-            border-left-color: var(--accent);
-        }
-
-        .nav-item .icon {
-            font-size: 1rem;
-            width: 18px;
-            text-align: center;
-        }
+        .nav-item.active { border-left: 3px solid var(--primary); }
 
         .sidebar-footer {
-            padding: 1rem 1.5rem;
+            margin-top: auto;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border);
-            flex-shrink: 0;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
+        .admin-user-info {
+            display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;
         }
 
-        .avatar {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: white;
+        .admin-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; color: white;
         }
 
-        .user-name {
-            font-size: 0.8rem;
-            font-weight: 600;
+        .admin-user-email {
+            font-size: 0.75rem; color: var(--text-muted);
+            max-width: 140px; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .user-role {
-            font-size: 0.65rem;
-            color: var(--muted);
+        .logout-btn {
+            width: 100%; border: 1px solid var(--border); border-radius: 8px;
+            padding: 0.65rem; background: transparent; color: var(--text-muted);
+            cursor: pointer; font-size: 0.85rem; display: flex; align-items: center;
+            justify-content: center; gap: 0.5rem;
         }
 
-        .btn-logout {
-            width: 100%;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 0.5rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.75rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
+        .logout-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+        .main-content { flex: 1; margin-left: 260px; padding: 2rem 3rem; }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);
         }
 
-        .btn-logout:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .btn {
+            padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: inherit; font-size: 0.85rem;
         }
 
-        /* MAIN */
-        .main {
-            margin-left: 220px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
 
-        .topbar {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 40;
-        }
-
-        .topbar-title {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .topbar-sub {
-            font-size: 0.72rem;
-            color: var(--muted);
-            margin-top: 0.1rem;
-        }
-
-        .topbar-actions {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-        }
-
-        .btn-save {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.55rem 1.5rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.78rem;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-save:hover {
-            background: #dc2626;
-        }
-
-        .btn-save:disabled {
-            background: var(--muted);
-            cursor: not-allowed;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 0.55rem 1rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.78rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-outline:hover {
-            border-color: var(--blue);
-            color: var(--blue);
-        }
-
-        .content {
-            padding: 2rem;
-            flex: 1;
-        }
-
-        /* PANELS */
-        .panel {
-            display: none;
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        /* CARDS */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* FORM */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.25rem;
-        }
-
-        .form-grid .full {
-            grid-column: 1 / -1;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .form-group label {
-            font-size: 0.7rem;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.65rem 0.9rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.82rem;
-            border-radius: 6px;
-            outline: none;
-            transition: border-color 0.2s;
-            width: 100%;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--accent);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 90px;
-        }
-
-        .form-group select option {
-            background: var(--surface);
-        }
-
-        .char-counter {
-            font-size: 0.65rem;
-            text-align: right;
-            color: var(--muted);
-            margin-top: 0.2rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .char-counter.warn {
-            color: var(--accent2);
-        }
-
-        .char-counter.over {
-            color: var(--accent);
-        }
-
-        /* STATS */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1.25rem;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem;
         }
 
-        .stat-card::after {
-            content: attr(data-icon);
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 2rem;
-            opacity: 0.08;
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
         }
 
-        .stat-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--muted);
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .form-input, .form-textarea, .form-select {
+            width: 100%; padding: 0.75rem 1rem; background: var(--bg-dark);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+            font-family: inherit;
         }
 
-        .stat-value {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin: 0.25rem 0;
-            letter-spacing: -0.03em;
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        .image-upload {
+            border: 2px dashed var(--border); border-radius: 12px; padding: 2rem;
+            text-align: center; cursor: pointer; position: relative;
         }
 
-        .stat-delta {
-            font-size: 0.7rem;
+        .image-upload.has-image { border-style: solid; border-color: var(--primary); }
+        .image-upload input { position: absolute; inset: 0; opacity: 0; }
+        .upload-preview { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+        .upload-preview.avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto; }
+
+        .item-list { display: flex; flex-direction: column; gap: 1rem; }
+        .list-item {
+            background: var(--bg-dark); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1.25rem; display: flex; gap: 1rem; align-items: center;
         }
 
-        .stat-delta.up {
-            color: var(--green);
+        .item-image { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .item-image.avatar { border-radius: 50%; }
+        .item-content { flex: 1; }
+        .item-actions { display: flex; gap: 0.5rem; }
+        .btn-icon {
+            width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+            background: transparent; color: var(--text); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .stat-delta.neutral {
-            color: var(--muted);
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+            z-index: 1000; display: none; align-items: center; justify-content: center; padding: 2rem;
         }
 
-        /* TOGGLE */
-        .toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
         }
 
-        .toggle-row:last-child {
-            border-bottom: none;
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem; }
+
+        .toast-container { position: fixed; top: 2rem; right: 2rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast {
+            background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--primary);
+            border-radius: 8px; padding: 1rem 1.5rem; min-width: 300px;
+            animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 0.75rem;
         }
 
-        .toggle-label {
-            font-size: 0.82rem;
-            font-weight: 500;
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .section-content { display: none; }
+        .section-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .toggle-desc {
-            font-size: 0.7rem;
-            color: var(--muted);
-            margin-top: 0.15rem;
-        }
-
-        .toggle {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background: var(--surface2);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-
-        .toggle.on {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .toggle::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.2s;
-        }
-
-        .toggle.on::after {
-            transform: translateX(20px);
-        }
-
-        /* LINK ITEMS */
-        .link-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.6rem;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-        }
-
-        .link-item input {
-            background: transparent;
-            border: none;
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            outline: none;
-            flex: 1;
-            padding: 0.2rem 0.4rem;
-        }
-
-        .link-drag {
-            color: var(--muted);
-            cursor: grab;
-        }
-
-        .link-del {
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 0 0.25rem;
-            transition: color 0.2s;
-        }
-
-        .link-del:hover {
-            color: var(--accent);
-        }
-
-        .btn-add {
-            background: transparent;
-            border: 1px dashed var(--border);
-            color: var(--muted);
-            padding: 0.5rem 1rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.75rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-            margin-top: 0.25rem;
-        }
-
-        .btn-add:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* INLINE CARD */
-        .inline-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            position: relative;
-        }
-
-        /* COLOR */
-        .color-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .color-row input[type="color"] {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            background: none;
-        }
-
-        .color-row input[type="text"] {
-            flex: 1;
-        }
-
-        /* SOCIAL */
-        .social-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .social-platform {
-            width: 36px;
-            height: 36px;
-            background: var(--surface2);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--muted);
-        }
-
-        /* SEO */
-        .seo-bar {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .seo-row {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .seo-label {
-            font-size: 0.75rem;
-            width: 140px;
-            color: var(--muted);
-        }
-
-        .seo-track {
-            flex: 1;
-            height: 6px;
-            background: var(--surface2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .seo-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.4s ease;
-        }
-
-        .seo-fill.good {
-            background: var(--green);
-        }
-
-        .seo-fill.warn {
-            background: var(--accent2);
-        }
-
-        .seo-fill.bad {
-            background: var(--accent);
-        }
-
-        .seo-val {
-            font-size: 0.7rem;
-            width: 30px;
-            text-align: right;
-            color: var(--muted);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* UNSAVED DOT */
-        .unsaved-dot {
-            width: 7px;
-            height: 7px;
-            background: var(--accent2);
-            border-radius: 50%;
-            display: none;
-            margin-left: 0.4rem;
-            vertical-align: middle;
-        }
-
-        .unsaved-dot.visible {
-            display: inline-block;
-        }
-
-        /* IMG UPLOAD */
-        .img-upload {
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--bg);
-        }
-
-        .img-upload:hover {
-            border-color: var(--accent);
-        }
-
-        .img-upload p {
-            font-size: 0.8rem;
-            color: var(--muted);
-        }
-
-        .img-upload span {
-            font-size: 0.7rem;
-            color: var(--accent);
-            font-weight: 500;
-        }
-
-        /* TOAST */
-        #toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 0.9rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            font-weight: 500;
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            transform: translateY(10px);
-        }
-
-        #toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #toast.success {
-            background: var(--green);
-            color: white;
-        }
-
-        #toast.error {
-            background: var(--accent);
-            color: white;
+        .code-preview {
+            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px;
+            padding: 1rem; font-family: 'DM Mono', monospace; font-size: 0.8rem;
+            max-height: 400px; overflow-y: auto; white-space: pre-wrap; color: var(--text-muted);
         }
     </style>
 </head>
-
 <body>
 
-    <!-- LOGIN -->
-    <div id="loginOverlay">
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
         <div class="login-card">
-            <div class="login-logo">App<span>VerteX</span></div>
-            <p class="login-sub">Admin Panel — Restricted Access</p>
-            <div style="margin-bottom:1.5rem">
-                <label>Password</label>
-                <input type="password" id="adminPass" placeholder="Enter admin password"
-                    onkeydown="if(event.key==='Enter') login()">
+            <div class="login-logo"><span>App</span>VerteX</div>
+            <p class="login-subtitle">Admin Panel</p>
+            <div class="login-badge"><i class="fas fa-lock"></i> Secure Access</div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="login-input-wrap"><i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="admin@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="login-input-wrap"><i class="fas fa-key"></i>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                </div>
+                <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
+                <div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i> <span id="loginErrorMsg"></span></div>
             </div>
-            <button class="btn-primary" onclick="login()">→ Sign In</button>
-            <p class="login-hint">AppVerteX Admin Panel</p>
         </div>
     </div>
 
-    <!-- APP -->
-    <div id="app">
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <h1>App<span>VerteX</span></h1>
-                <p>Content Manager</p>
-            </div>
-            <nav class="sidebar-nav">
-                <div class="nav-section-label">Pages</div>
-                <div class="nav-item active" onclick="switchPanel('dashboard',this)"><span class="icon">⬡</span>
-                    Dashboard</div>
-                <div class="nav-item" onclick="switchPanel('hero',this)"><span class="icon">◈</span> Hero Section</div>
-                <div class="nav-item" onclick="switchPanel('navbar',this)"><span class="icon">☰</span> Navigation</div>
-                <div class="nav-item" onclick="switchPanel('about',this)"><span class="icon">◉</span> About</div>
-                <div class="nav-item" onclick="switchPanel('services',this)"><span class="icon">◫</span> Services</div>
-                <div class="nav-item" onclick="switchPanel('portfolio',this)"><span class="icon">◧</span> Portfolio
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel">
+        <div class="admin-container">
+            <aside class="sidebar">
+                <div class="logo"><span>App</span>VerteX</div>
+                <div class="nav-section">
+                    <div class="nav-title">Website</div>
+                    <a href="index.html" class="nav-item"><i class="fas fa-external-link-alt"></i> View Site</a>
                 </div>
-                <div class="nav-item" onclick="switchPanel('team',this)"><span class="icon">◎</span> Team</div>
-                <div class="nav-item" onclick="switchPanel('testimonials',this)"><span class="icon">❝</span>
-                    Testimonials</div>
-                <div class="nav-item" onclick="switchPanel('contact',this)"><span class="icon">◌</span> Contact</div>
-                <div class="nav-item" onclick="switchPanel('footer',this)"><span class="icon">▭</span> Footer</div>
-                <div class="nav-section-label">Config</div>
-                <div class="nav-item" onclick="switchPanel('seo',this)"><span class="icon">◑</span> SEO & Meta</div>
-                <div class="nav-item" onclick="switchPanel('branding',this)"><span class="icon">◐</span> Branding</div>
-                <div class="nav-item" onclick="switchPanel('settings',this)"><span class="icon">⊙</span> Settings</div>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="avatar">A</div>
-                    <div>
-                        <div class="user-name">Admin</div>
-                        <div class="user-role">Super Admin</div>
+                <div class="nav-section">
+                    <div class="nav-title">Dashboard</div>
+                    <a class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Overview</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">Content</div>
+                    <a class="nav-item" onclick="showSection('testimonials')"><i class="fas fa-quote-left"></i> Testimonials</a>
+                    <a class="nav-item" onclick="showSection('projects')"><i class="fas fa-briefcase"></i> Projects</a>
+                    <a class="nav-item" onclick="showSection('footer')"><i class="fas fa-shoe-prints"></i> Footer</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">Settings</div>
+                    <a class="nav-item" onclick="showSection('export')"><i class="fas fa-download"></i> Export Code</a>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="admin-user-info">
+                        <div class="admin-avatar" id="adminAvatar">A</div>
+                        <div>
+                            <div style="font-size:0.8rem; font-weight:600;">Admin</div>
+                            <div class="admin-user-email" id="adminEmail">loading...</div>
+                        </div>
                     </div>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
-                <button class="btn-logout" onclick="logout()">Sign Out</button>
-            </div>
-        </aside>
+            </aside>
 
-        <main class="main">
-            <div class="topbar">
-                <div>
-                    <div class="topbar-title" id="topbarTitle">Dashboard <span class="unsaved-dot"
-                            id="unsavedDot"></span></div>
-                    <div class="topbar-sub" id="topbarSub">Overview & quick stats</div>
-                </div>
-                <div class="topbar-actions">
-                    <button class="btn-outline" onclick="window.open('/appvertex_sound.html', '_blank')">⬡
-                        Preview Site</button>
-                    <button class="btn-save" id="globalSave" onclick="saveAll()">✓ Save Changes</button>
-                </div>
-            </div>
-
-            <div class="content">
-
-                <!-- DASHBOARD -->
-                <div class="panel active" id="panel-dashboard">
-                    <div class="stats-row">
-                        <div class="stat-card" data-icon="◈">
-                            <div class="stat-label">Sections</div>
-                            <div class="stat-value">11</div>
-                            <div class="stat-delta neutral">All configured</div>
-                        </div>
-                        <div class="stat-card" data-icon="◎">
-                            <div class="stat-label">Last Saved</div>
-                            <div class="stat-value" id="lastSavedDisplay" style="font-size:1rem">—</div>
-                            <div class="stat-delta neutral" id="lastSavedSub">Not saved yet</div>
-                        </div>
-                        <div class="stat-card" data-icon="◑">
-                            <div class="stat-label">SEO Score</div>
-                            <div class="stat-value">82<span
-                                    style="font-size:0.9rem;font-weight:400;color:var(--muted)">/100</span></div>
-                            <div class="stat-delta up">↑ Good visibility</div>
-                        </div>
-                        <div class="stat-card" data-icon="◧">
-                            <div class="stat-label">Status</div>
-                            <div class="stat-value" style="color:var(--green)">Live</div>
-                            <div class="stat-delta up">Localhost:8000</div>
-                        </div>
+            <main class="main-content">
+                <div id="dashboard" class="section-content active">
+                    <div class="header"><h1>Dashboard</h1></div>
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-value" id="statTestimonials">0</div><div class="stat-label">Testimonials</div></div>
+                        <div class="stat-card"><div class="stat-value" id="statProjects">0</div><div class="stat-label">Projects</div></div>
+                        <div class="stat-card"><div class="stat-value" id="statYear">2026</div><div class="stat-label">Footer Year</div></div>
                     </div>
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◈ Quick Edit — Hero</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group full"><label>Main Headline</label><input type="text"
-                                        id="q_heroTitle" placeholder="Your powerful headline..."
-                                        oninput="syncHero('heroTitle', this.value)"></div>
-                                <div class="form-group full"><label>Tagline</label><textarea id="q_heroSubtitle"
-                                        oninput="syncHero('heroSubtitle', this.value)"></textarea></div>
-                            </div>
-                        </div>
+                        <h3>Migration & Sync</h3>
+                        <p style="color:var(--text-muted); margin: 10px 0;">If you have previous data in this browser, click below to upload it to Firebase.</p>
+                        <button class="btn btn-primary" onclick="importLocalData()"><i class="fas fa-cloud-upload-alt"></i> Import Local Data</button>
                     </div>
                 </div>
 
-                <!-- HERO -->
-                <div class="panel" id="panel-hero">
+                <div id="testimonials" class="section-content">
+                    <div class="header"><h1>Testimonials</h1><button class="btn btn-primary" onclick="openTestimonialModal()">+ Add</button></div>
+                    <div id="testimonialsList" class="item-list"></div>
+                </div>
+
+                <div id="projects" class="section-content">
+                    <div class="header"><h1>Projects</h1><button class="btn btn-primary" onclick="openProjectModal()">+ Add</button></div>
+                    <div id="projectsList" class="item-list"></div>
+                </div>
+
+                <div id="footer" class="section-content">
+                    <div class="header"><h1>Footer</h1></div>
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◈ Hero Content</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group full"><label>Main Title</label><input type="text" id="heroTitle"
-                                        placeholder="Build Something Extraordinary"
-                                        oninput="syncHero('q_heroTitle', this.value);syncChar(this,'heroTitleCount',70)">
-                                    <div class="char-counter" id="heroTitleCount">0 / 70</div>
-                                </div>
-                                <div class="form-group full"><label>Subtitle / Tagline</label><textarea
-                                        id="heroSubtitle" placeholder="Your compelling value proposition..."
-                                        oninput="syncHero('q_heroSubtitle', this.value);syncChar(this,'heroSubCount',160)"></textarea>
-                                    <div class="char-counter" id="heroSubCount">0 / 160</div>
-                                </div>
-                                <div class="form-group"><label>Primary CTA Text</label><input type="text" id="heroCta1"
-                                        placeholder="Get Started" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Primary CTA URL</label><input type="text"
-                                        id="heroCta1Url" placeholder="/contact" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Secondary CTA Text</label><input type="text"
-                                        id="heroCta2" placeholder="View Our Work" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Secondary CTA URL</label><input type="text"
-                                        id="heroCta2Url" placeholder="/portfolio" oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◈ Background & Visual</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Background Style</label><select id="heroBgStyle"
-                                        onchange="markUnsaved()">
-                                        <option value="gradient">gradient</option>
-                                        <option value="image">image</option>
-                                        <option value="video">video</option>
-                                        <option value="solid">solid</option>
-                                    </select></div>
-                                <div class="form-group"><label>Background Image URL</label><input type="text"
-                                        id="heroBgImg" placeholder="https://..." oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
+                        <label class="form-label">Copyright Year</label>
+                        <input type="number" class="form-input" id="footerYear" value="2026">
+                        <button class="btn btn-primary" style="margin-top:1rem" onclick="saveFooter()">Save</button>
                     </div>
                 </div>
 
-                <!-- NAVBAR -->
-                <div class="panel" id="panel-navbar">
+                <div id="export" class="section-content">
+                    <div class="header"><h1>Export</h1></div>
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">☰ Navigation Links</div>
-                        </div>
-                        <div class="card-body">
-                            <div id="navLinks"></div>
-                            <button class="btn-add" onclick="addNavLink()">+ Add Link</button>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">☰ Navbar Settings</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Logo Text</label><input type="text" id="navLogoText"
-                                        placeholder="AppVerteX" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>CTA Button Text</label><input type="text" id="navCtaText"
-                                        placeholder="Get Started" oninput="markUnsaved()"></div>
-                            </div>
+                        <button class="btn btn-primary" onclick="generateCode()">Generate index.html</button>
+                        <div id="codeOutput" class="code-preview" style="margin-top:1rem">Click generate...</div>
+                        <div style="margin-top:1rem; display:flex; gap:1rem;">
+                            <button class="btn btn-secondary" onclick="copyCode()">Copy</button>
+                            <button class="btn btn-primary" onclick="downloadCode()">Download</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- ABOUT -->
-                <div class="panel" id="panel-about">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◉ About Section</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Section Tag</label><input type="text" id="aboutTag"
-                                        placeholder="About Us" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Heading</label><input type="text" id="aboutHeading"
-                                        placeholder="We Build Digital Excellence" oninput="markUnsaved()"></div>
-                                <div class="form-group full"><label>Body Text</label><textarea id="aboutBody"
-                                        style="min-height:130px" placeholder="Tell your story..."
-                                        oninput="markUnsaved()"></textarea></div>
-                                <div class="form-group full"><label>Mission Statement</label><textarea id="aboutMission"
-                                        placeholder="Our mission is to..." oninput="markUnsaved()"></textarea></div>
-                                <div class="form-group"><label>Founded Year</label><input type="text" id="aboutYear"
-                                        placeholder="2019" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Team Size</label><input type="text" id="aboutTeamSize"
-                                        placeholder="25+" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Projects Completed</label><input type="text"
-                                        id="aboutProjects" placeholder="200+" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Client Satisfaction</label><input type="text"
-                                        id="aboutSatisfaction" placeholder="98%" oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SERVICES -->
-                <div class="panel" id="panel-services">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◫ Services Header</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Section Tag</label><input type="text" id="servicesTag"
-                                        placeholder="What We Do" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Heading</label><input type="text" id="servicesHeading"
-                                        placeholder="Our Services" oninput="markUnsaved()"></div>
-                                <div class="form-grid full"><label>Subheading</label><textarea id="servicesSubheading"
-                                        placeholder="Brief description..." oninput="markUnsaved()"></textarea></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◫ Service Items</div>
-                        </div>
-                        <div class="card-body">
-                            <div id="serviceItems"></div><button class="btn-add" onclick="addServiceItem()">+ Add
-                                Service</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PORTFOLIO -->
-                <div class="panel" id="panel-portfolio">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◧ Portfolio Header</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Section Tag</label><input type="text" id="portfolioTag"
-                                        placeholder="Our Work" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Heading</label><input type="text" id="portfolioHeading"
-                                        placeholder="Recent Projects" oninput="markUnsaved()"></div>
-                                <div class="form-grid full"><label>Subheading</label><textarea id="portfolioSubheading"
-                                        placeholder="Showcase description..." oninput="markUnsaved()"></textarea></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◧ Portfolio Projects</div>
-                        </div>
-                        <div class="card-body">
-                            <div id="portfolioItems"></div><button class="btn-add" onclick="addPortfolioItem()">+ Add
-                                Project</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TEAM -->
-                <div class="panel" id="panel-team">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◎ Team Header</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Heading</label><input type="text" id="teamHeading"
-                                        placeholder="Meet The Team" oninput="markUnsaved()"></div>
-                                <div class="form-grid full"><label>Subheading</label><textarea id="teamSubheading"
-                                        placeholder="Team description..." oninput="markUnsaved()"></textarea></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◎ Team Members</div>
-                        </div>
-                        <div class="card-body">
-                            <div id="teamItems"></div><button class="btn-add" onclick="addTeamMember()">+ Add
-                                Member</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TESTIMONIALS -->
-                <div class="panel" id="panel-testimonials">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">❝ Testimonials Header</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Heading</label><input type="text" id="testiHeading"
-                                        placeholder="What Clients Say" oninput="markUnsaved()"></div>
-                                <div class="form-grid full"><label>Subheading</label><textarea id="testiSubheading"
-                                        placeholder="Social proof description..." oninput="markUnsaved()"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">❝ Testimonial Entries</div>
-                        </div>
-                        <div class="card-body">
-                            <div id="testiItems"></div><button class="btn-add" onclick="addTestimonial()">+ Add
-                                Testimonial</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CONTACT -->
-                <div class="panel" id="panel-contact">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◌ Contact Information</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Section Heading</label><input type="text"
-                                        id="contactHeading" placeholder="Get In Touch" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Email Address</label><input type="email"
-                                        id="contactEmail" placeholder="hello@appvertex.com" oninput="markUnsaved()">
-                                </div>
-                                <div class="form-group"><label>Phone Number</label><input type="tel" id="contactPhone"
-                                        placeholder="+1 (555) 000-0000" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Address</label><input type="text" id="contactAddress"
-                                        placeholder="123 Main St, City, State" oninput="markUnsaved()"></div>
-                                <div class="form-grid full"><label>Contact Page Intro</label><textarea id="contactIntro"
-                                        placeholder="How can we help you?" oninput="markUnsaved()"></textarea></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◌ Social Media Links</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="social-item">
-                                <div class="social-platform">𝕏</div>
-                                <div class="form-group" style="flex:1;margin:0"><input type="text" id="socialTwitter"
-                                        placeholder="https://twitter.com/..." oninput="markUnsaved()"></div>
-                            </div>
-                            <div class="social-item">
-                                <div class="social-platform">in</div>
-                                <div class="form-group" style="flex:1;margin:0"><input type="text" id="socialLinkedin"
-                                        placeholder="https://linkedin.com/..." oninput="markUnsaved()"></div>
-                            </div>
-                            <div class="social-item">
-                                <div class="social-platform">gh</div>
-                                <div class="form-group" style="flex:1;margin:0"><input type="text" id="socialGithub"
-                                        placeholder="https://github.com/..." oninput="markUnsaved()"></div>
-                            </div>
-                            <div class="social-item">
-                                <div class="social-platform">ig</div>
-                                <div class="form-group" style="flex:1;margin:0"><input type="text" id="socialInstagram"
-                                        placeholder="https://instagram.com/..." oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FOOTER -->
-                <div class="panel" id="panel-footer">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">▭ Footer Content</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group full"><label>Footer Tagline</label><input type="text"
-                                        id="footerTagline" placeholder="Building digital excellence."
-                                        oninput="markUnsaved()"></div>
-                                <div class="form-group full"><label>Copyright Text</label><input type="text"
-                                        id="footerCopyright" placeholder="© 2025 AppVerteX." oninput="markUnsaved()">
-                                </div>
-                                <div class="form-group"><label>Privacy Policy URL</label><input type="text"
-                                        id="footerPrivacy" placeholder="/privacy" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Terms URL</label><input type="text" id="footerTerms"
-                                        placeholder="/terms" oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SEO -->
-                <div class="panel" id="panel-seo">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◑ Meta Tags</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group full"><label>Page Title</label><input type="text" id="seoTitle"
-                                        placeholder="AppVerteX — Digital Studio"
-                                        oninput="markUnsaved();syncChar(this,'seoTitleCount',60)">
-                                    <div class="char-counter" id="seoTitleCount">0 / 60</div>
-                                </div>
-                                <div class="form-group full"><label>Meta Description</label><textarea id="seoDesc"
-                                        placeholder="We build products..."
-                                        oninput="markUnsaved();syncChar(this,'seoDescCount',160)"></textarea>
-                                    <div class="char-counter" id="seoDescCount">0 / 160</div>
-                                </div>
-                                <div class="form-group full"><label>Keywords</label><input type="text" id="seoKeywords"
-                                        placeholder="app development, studio" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>OG Title</label><input type="text" id="ogTitle"
-                                        placeholder="AppVerteX" oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>OG Image URL</label><input type="text" id="ogImage"
-                                        placeholder="https://..." oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BRANDING -->
-                <div class="panel" id="panel-branding">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◐ Appearance</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Accent Color</label>
-                                    <div class="color-row"><input type="color" id="colorAccent"
-                                            oninput="document.getElementById('colorAccentHex').value=this.value;markUnsaved()"><input
-                                            type="text" id="colorAccentHex"
-                                            oninput="document.getElementById('colorAccent').value=this.value;markUnsaved()">
-                                    </div>
-                                </div>
-                                <div class="form-group"><label>Background</label>
-                                    <div class="color-row"><input type="color" id="colorBg"
-                                            oninput="document.getElementById('colorBgHex').value=this.value;markUnsaved()"><input
-                                            type="text" id="colorBgHex"
-                                            oninput="document.getElementById('colorBg').value=this.value;markUnsaved()">
-                                    </div>
-                                </div>
-                                <div class="form-group"><label>Surface</label>
-                                    <div class="color-row"><input type="color" id="colorSurface"
-                                            oninput="document.getElementById('colorSurfaceHex').value=this.value;markUnsaved()"><input
-                                            type="text" id="colorSurfaceHex"
-                                            oninput="document.getElementById('colorSurface').value=this.value;markUnsaved()">
-                                    </div>
-                                </div>
-                                <div class="form-group"><label>Text Color</label>
-                                    <div class="color-row"><input type="color" id="colorText"
-                                            oninput="document.getElementById('colorTextHex').value=this.value;markUnsaved()"><input
-                                            type="text" id="colorTextHex"
-                                            oninput="document.getElementById('colorText').value=this.value;markUnsaved()">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">◐ Typography</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Heading Font</label><select id="fontHeading"
-                                        onchange="markUnsaved()">
-                                        <option value="Syne">Syne (Original)</option>
-                                        <option value="Space Grotesk">Space Grotesk</option>
-                                        <option value="Inter">Inter</option>
-                                        <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
-                                    </select></div>
-                                <div class="form-group"><label>Body Font</label><select id="fontBody"
-                                        onchange="markUnsaved()">
-                                        <option value="DM Mono">DM Mono (Original)</option>
-                                        <option value="Inter">Inter</option>
-                                        <option value="DM Sans">DM Sans</option>
-                                        <option value="Manrope">Manrope</option>
-                                    </select></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SETTINGS -->
-                <div class="panel" id="panel-settings">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">⊙ General</div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Site Name</label><input type="text" id="settingsSiteName"
-                                        oninput="markUnsaved()"></div>
-                                <div class="form-group"><label>Domain</label><input type="text" id="settingsDomain"
-                                        oninput="markUnsaved()"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
-    <div id="toast"></div>
+    <!-- MODALS (Testimonial & Project) -->
+    <div class="modal-overlay" id="testimonialModal">
+        <div class="modal">
+            <div class="modal-header"><h3 id="testimonialModalTitle">Testimonial</h3><button class="btn" onclick="closeModal('testimonialModal')">&times;</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="testimonialId">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="testimonialName"></div>
+                    <div class="form-group"><label class="form-label">Role</label><input type="text" class="form-input" id="testimonialRole"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Rating</label><select class="form-select" id="testimonialRating"><option value="5">5 Stars</option><option value="4">4 Stars</option></select></div>
+                <div class="form-group"><label class="form-label">Text</label><textarea class="form-textarea" id="testimonialText"></textarea></div>
+                <div class="image-upload" id="testimonialImageUpload">
+                    <input type="file" id="testimonialImage" accept="image/*" onchange="handleImageUpload(this, 'testimonial')">
+                    <div id="testimonialPlaceholder"><i class="fas fa-camera"></i><p>Upload Photo</p></div>
+                    <img id="testimonialPreview" class="upload-preview avatar" style="display:none">
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('testimonialModal')">Cancel</button><button class="btn btn-primary" onclick="saveTestimonial()">Save</button></div>
+        </div>
+    </div>
 
-    <script>
-        let hasUnsaved = false;
-        const API_URL = '/api/content';
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Project</h3><button class="btn" onclick="closeModal('projectModal')">&times;</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="projectId">
+                <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="projectName"></div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="projectCategory"><option value="startup">Startup</option><option value="ecommerce">E-Commerce</option><option value="school">School</option><option value="brand">Brand</option></select></div>
+                    <div class="form-group"><label class="form-label">Year</label><input type="number" class="form-input" id="projectYear"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="projectDesc"></textarea></div>
+                <div class="form-group"><label class="form-label">Tech (comma separated)</label><input type="text" class="form-input" id="projectTech"></div>
+                <div class="image-upload" id="projectImageUpload">
+                    <input type="file" id="projectImage" accept="image/*" onchange="handleImageUpload(this, 'project')">
+                    <div id="projectPlaceholder"><i class="fas fa-image"></i><p>Upload Screenshot</p></div>
+                    <img id="projectPreview" class="upload-preview" style="display:none">
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('projectModal')">Cancel</button><button class="btn btn-primary" onclick="saveProject()">Save</button></div>
+        </div>
+    </div>
 
-        async function login() {
-            const pass = document.getElementById('adminPass').value;
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDocs, getDoc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import firebaseConfig from "./firebase-config.js";
+
+        // Init
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // State
+        let testimonials = [];
+        let projects = [];
+        let footerYear = "2026";
+        let currentTestimonialImage = null;
+        let currentProjectImage = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').classList.add('visible');
+                document.getElementById('adminEmail').textContent = user.email;
+                document.getElementById('adminAvatar').textContent = user.email[0].toUpperCase();
+                loadDataFromCloud();
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('adminPanel').classList.remove('visible');
+            }
+        });
+
+        // Auth Actions
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('loginError');
+            const errMsg = document.getElementById('loginErrorMsg');
+            
+            btn.disabled = true; btn.textContent = "Checking...";
+            err.classList.remove('show');
+
             try {
-                const res = await fetch('/api/content/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: 'lestoncoelho9@gmail.com', password: pass })
-                });
-                const data = await res.json();
-                if (res.ok && data.token) {
-                    localStorage.setItem('appvertex_auth', 'true');
-                    localStorage.setItem('appvertex_token', data.token);
-                    const o = document.getElementById('loginOverlay');
-                    o.classList.add('hidden');
-                    setTimeout(() => o.style.display = 'none', 400);
-                    loadSaved();
-                } else {
-                    showToast(data.error || 'Invalid password', 'error');
-                }
+                await signInWithEmailAndPassword(auth, email, pass);
             } catch (e) {
-                showToast('Login failed — server unreachable', 'error');
+                console.error("Login Error:", e);
+                btn.disabled = false; btn.textContent = "Sign In";
+                err.classList.add('show');
+                
+                if (e.code === 'auth/invalid-credential') {
+                    errMsg.textContent = "Invalid email or password.";
+                } else if (e.code === 'auth/operation-not-allowed') {
+                    errMsg.textContent = "Email login is disabled in Firebase Console.";
+                } else {
+                    errMsg.textContent = e.message;
+                }
             }
         }
 
-        function logout() { localStorage.removeItem('appvertex_auth'); localStorage.removeItem('appvertex_token'); location.reload(); }
-
-        if (localStorage.getItem('appvertex_auth')) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            loadSaved();
+        async function handleLogout() {
+            await signOut(auth);
         }
 
-        function switchPanel(id, el) {
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('panel-' + id).classList.add('active');
-            el.classList.add('active');
-        }
-
-        function markUnsaved() {
-            hasUnsaved = true;
-            document.getElementById('unsavedDot')?.classList.add('visible');
-        }
-
-        function syncHero(partnerId, val) {
-            markUnsaved();
-            const partner = document.getElementById(partnerId);
-            if (partner) partner.value = val;
-        }
-
-        function syncChar(el, cid, max) {
-            const len = el.value.length;
-            const ctr = document.getElementById(cid);
-            if (!ctr) return;
-            ctr.textContent = len + ' / ' + max;
-            ctr.className = 'char-counter' + (len > max ? ' over' : len > max * 0.85 ? ' warn' : '');
-        }
-
-        /* LIST BUILDERS */
-        function addNavLink(val = { label: '', url: '' }) {
-            const wrap = document.getElementById('navLinks');
-            const div = document.createElement('div');
-            div.className = 'link-item';
-            div.innerHTML = `<span class="link-drag">⠿</span>
-      <input class="nav-label" placeholder="Label" value="${val.label}" oninput="markUnsaved()">
-      <input class="nav-url" placeholder="/url" value="${val.url}" style="max-width:140px" oninput="markUnsaved()">
-      <button class="link-del" onclick="this.parentElement.remove();markUnsaved()">✕</button>`;
-            wrap.appendChild(div);
-        }
-
-        function addServiceItem(val = { title: '', icon: '', description: '' }) {
-            const wrap = document.getElementById('serviceItems');
-            const div = document.createElement('div');
-            div.className = 'inline-card service-item';
-            div.innerHTML = `<div class="form-grid">
-      <div class="form-group"><label>Title</label><input type="text" class="s-title" value="${val.title}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Icon</label><input type="text" class="s-icon" value="${val.icon}" oninput="markUnsaved()"></div>
-      <div class="form-group full"><label>Description</label><textarea class="s-desc" oninput="markUnsaved()">${val.description}</textarea></div>
-    </div><button class="link-del" onclick="this.parentElement.remove();markUnsaved()" style="position:absolute;top:10px;right:10px">✕</button>`;
-            wrap.appendChild(div);
-        }
-
-        function addPortfolioItem(val = { name: '', category: '', description: '', image: '', url: '', year: '' }) {
-            const wrap = document.getElementById('portfolioItems');
-            const div = document.createElement('div');
-            div.className = 'inline-card portfolio-item';
-            div.innerHTML = `<div class="form-grid">
-      <div class="form-group"><label>Name</label><input type="text" class="p-name" value="${val.name}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Category</label><input type="text" class="p-cat" value="${val.category}" oninput="markUnsaved()"></div>
-      <div class="form-group full"><label>Description</label><textarea class="p-desc" oninput="markUnsaved()">${val.description}</textarea></div>
-      <div class="form-group full"><label>Image URL</label><input type="text" class="p-img" value="${val.image}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Live URL</label><input type="text" class="p-url" value="${val.url}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Year</label><input type="text" class="p-year" value="${val.year}" oninput="markUnsaved()"></div>
-    </div><button class="link-del" onclick="this.parentElement.remove();markUnsaved()" style="position:absolute;top:10px;right:10px">✕</button>`;
-            wrap.appendChild(div);
-        }
-
-        function addTeamMember(val = { name: '', role: '', bio: '', photo: '', linkedin: '', twitter: '' }) {
-            const wrap = document.getElementById('teamItems');
-            const div = document.createElement('div');
-            div.className = 'inline-card team-item';
-            div.innerHTML = `<div class="form-grid">
-      <div class="form-group"><label>Name</label><input type="text" class="t-name" value="${val.name}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Role</label><input type="text" class="t-role" value="${val.role}" oninput="markUnsaved()"></div>
-      <div class="form-group full"><label>Bio</label><textarea class="t-bio" oninput="markUnsaved()">${val.bio}</textarea></div>
-      <div class="form-group full"><label>Photo URL</label><input type="text" class="t-photo" value="${val.photo}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>LinkedIn</label><input type="text" class="t-link" value="${val.linkedin}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Twitter</label><input type="text" class="t-twit" value="${val.twitter}" oninput="markUnsaved()"></div>
-    </div><button class="link-del" onclick="this.parentElement.remove();markUnsaved()" style="position:absolute;top:10px;right:10px">✕</button>`;
-            wrap.appendChild(div);
-        }
-
-        function addTestimonial(val = { name: '', company: '', text: '', rating: 5, photo: '' }) {
-            const wrap = document.getElementById('testiItems');
-            const div = document.createElement('div');
-            div.className = 'inline-card testimonial-item';
-            div.innerHTML = `<div class="form-grid">
-      <div class="form-group"><label>Name</label><input type="text" class="tm-name" value="${val.name}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Company</label><input type="text" class="tm-comp" value="${val.company}" oninput="markUnsaved()"></div>
-      <div class="form-group full"><label>Text</label><textarea class="tm-text" oninput="markUnsaved()">${val.text}</textarea></div>
-      <div class="form-group"><label>Rating</label><input type="number" class="tm-rate" value="${val.rating}" oninput="markUnsaved()"></div>
-      <div class="form-group"><label>Photo URL</label><input type="text" class="tm-photo" value="${val.photo}" oninput="markUnsaved()"></div>
-    </div><button class="link-del" onclick="this.parentElement.remove();markUnsaved()" style="position:absolute;top:10px;right:10px">✕</button>`;
-            wrap.appendChild(div);
-        }
-
-        /* DATA PERSISTENCE */
-        async function loadSaved() {
+        // Data Actions
+        async function loadDataFromCloud() {
             try {
-                const res = await fetch(API_URL);
-                const d = await res.json();
-
-                // Hero
-                s('heroTitle', d.hero.title); s('q_heroTitle', d.hero.title);
-                s('heroSubtitle', d.hero.subtitle); s('q_heroSubtitle', d.hero.subtitle);
-                s('heroCta1', d.hero.cta1); s('heroCta1Url', d.hero.cta1Url);
-                s('heroCta2', d.hero.cta2); s('heroCta2Url', d.hero.cta2Url);
-                s('heroBgStyle', d.hero.bgStyle); s('heroBgImg', d.hero.bgImg);
-
-                // Navbar
-                s('navLogoText', d.navbar.logoText); s('navCtaText', d.navbar.ctaText);
-                document.getElementById('navLinks').innerHTML = '';
-                if (d.navbar.links) d.navbar.links.forEach(l => addNavLink(l));
-
-                // About
-                s('aboutTag', d.about.tag); s('aboutHeading', d.about.heading);
-                s('aboutBody', d.about.body); s('aboutMission', d.about.mission);
-                s('aboutYear', d.about.year); s('aboutTeamSize', d.about.teamSize);
-                s('aboutProjects', d.about.projects); s('aboutSatisfaction', d.about.satisfaction);
-
-                // Services
-                s('servicesTag', d.services.tag); s('servicesHeading', d.services.heading);
-                s('servicesSubheading', d.services.subheading);
-                document.getElementById('serviceItems').innerHTML = '';
-                if (d.services.items) d.services.items.forEach(i => addServiceItem(i));
-
-                // Portfolio
-                s('portfolioTag', d.portfolio.tag); s('portfolioHeading', d.portfolio.heading);
-                s('portfolioSubheading', d.portfolio.subheading);
-                document.getElementById('portfolioItems').innerHTML = '';
-                if (d.portfolio.items) d.portfolio.items.forEach(i => addPortfolioItem(i));
-
-                // Team
-                s('teamHeading', d.team.heading); s('teamSubheading', d.team.subheading);
-                document.getElementById('teamItems').innerHTML = '';
-                if (d.team.items) d.team.items.forEach(i => addTeamMember(i));
-
-                // Testimonials
-                s('testiHeading', d.testimonials.heading); s('testiSubheading', d.testimonials.subheading);
-                document.getElementById('testiItems').innerHTML = '';
-                if (d.testimonials.items) d.testimonials.items.forEach(i => addTestimonial(i));
-
-                // Contact
-                s('contactHeading', d.contact.heading); s('contactEmail', d.contact.email);
-                s('contactPhone', d.contact.phone); s('contactAddress', d.contact.address);
-                s('contactIntro', d.contact.intro);
-                s('socialTwitter', d.contact.social.twitter); s('socialLinkedin', d.contact.social.linkedin);
-                s('socialGithub', d.contact.social.github); s('socialInstagram', d.contact.social.instagram);
-
-                // Footer
-                s('footerTagline', d.footer.tagline); s('footerCopyright', d.footer.copyright);
-                s('footerPrivacy', d.footer.privacy); s('footerTerms', d.footer.terms);
-
-                // SEO
-                s('seoTitle', d.seo.title); s('seoDesc', d.seo.description);
-                s('seoKeywords', d.seo.keywords); s('ogTitle', d.seo.ogTitle); s('ogImage', d.seo.ogImage);
-
-                // Branding
-                s('colorAccent', d.branding.accent); s('colorAccentHex', d.branding.accent);
-                s('colorBg', d.branding.bg); s('colorBgHex', d.branding.bg);
-                s('colorSurface', d.branding.surface); s('colorSurfaceHex', d.branding.surface);
-                s('colorText', d.branding.text); s('colorTextHex', d.branding.text);
-                s('fontHeading', d.branding.fontHeading); s('fontBody', d.branding.fontBody);
-
-                // Settings
-                s('settingsSiteName', d.settings.siteName); s('settingsDomain', d.settings.domain);
-
-                hasUnsaved = false;
-                document.getElementById('unsavedDot')?.classList.remove('visible');
-            } catch (e) { console.error('Load failed', e); }
+                const tSnap = await getDocs(collection(db, "testimonials"));
+                testimonials = tSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                const pSnap = await getDocs(collection(db, "projects"));
+                projects = pSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                const fSnap = await getDoc(doc(db, "settings", "footer"));
+                if (fSnap.exists()) footerYear = fSnap.data().year;
+                
+                updateStats();
+                renderTestimonials();
+                renderProjects();
+                document.getElementById('footerYear').value = footerYear;
+            } catch (e) { showToast("Sync failed", "error"); }
         }
 
-        async function saveAll() {
-            const btn = document.getElementById('globalSave');
-            btn.disabled = true; btn.textContent = 'Saving...';
+        async function importLocalData() {
+            const locT = JSON.parse(localStorage.getItem('appvertex_testimonials')) || [];
+            const locP = JSON.parse(localStorage.getItem('appvertex_projects')) || [];
+            if (locT.length === 0 && locP.length === 0) return showToast("Nothing to import", "info");
+            
+            showToast("Importing...", "info");
+            for (const t of locT) await setDoc(doc(db, "testimonials", t.id), t);
+            for (const p of locP) await setDoc(doc(db, "projects", p.id), p);
+            showToast("Import complete!");
+            loadDataFromCloud();
+        }
+
+        // Rendering & Helpers
+        function showSection(id) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function updateStats() {
+            document.getElementById('statTestimonials').textContent = testimonials.length;
+            document.getElementById('statProjects').textContent = projects.length;
+            document.getElementById('statYear').textContent = footerYear;
+        }
+
+        function renderTestimonials() {
+            const list = document.getElementById('testimonialsList');
+            list.innerHTML = testimonials.map(t => `
+                <div class="list-item">
+                    ${t.image ? `<img src="${t.image}" class="item-image avatar">` : `<div class="item-image avatar" style="background:var(--primary); display:flex; align-items:center; justify-content:center; color:white;">${t.initials}</div>`}
+                    <div class="item-content"><strong>${t.name}</strong><br><small>${t.role}</small></div>
+                    <div class="item-actions">
+                        <button class="btn-icon" onclick='openTestimonialModal(${JSON.stringify(t).replace(/'/g,"&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon" onclick="deleteTestimonial('${t.id}')" style="color:#ef4444;"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProjects() {
+            const list = document.getElementById('projectsList');
+            list.innerHTML = projects.map(p => `
+                <div class="list-item">
+                    ${p.image ? `<img src="${p.image}" class="item-image">` : `<div class="item-image" style="background:#333; display:flex; align-items:center; justify-content:center;">${p.emoji || '🚀'}</div>`}
+                    <div class="item-content"><strong>${p.name}</strong><br><small>${p.category}</small></div>
+                    <div class="item-actions">
+                        <button class="btn-icon" onclick='openProjectModal(${JSON.stringify(p).replace(/'/g,"&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon" onclick="deleteProject('${p.id}')" style="color:#ef4444;"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal Handlers
+        function openTestimonialModal(t = null) {
+            if (t) {
+                document.getElementById('testimonialId').value = t.id;
+                document.getElementById('testimonialName').value = t.name;
+                document.getElementById('testimonialRole').value = t.role;
+                document.getElementById('testimonialText').value = t.text;
+                if (t.image) {
+                    currentTestimonialImage = t.image;
+                    document.getElementById('testimonialPreview').src = t.image;
+                    document.getElementById('testimonialPreview').style.display = 'block';
+                    document.getElementById('testimonialPlaceholder').style.display = 'none';
+                }
+            }
+            document.getElementById('testimonialModal').classList.add('active');
+        }
+
+        async function saveTestimonial() {
+            const id = document.getElementById('testimonialId').value || Date.now().toString();
+            const nameField = document.getElementById('testimonialName');
+            const name = nameField.value.trim();
+            
+            if (!name) return showToast("Name is required", "error");
 
             const data = {
-                hero: {
-                    title: v('heroTitle'),
-                    subtitle: v('heroSubtitle'),
-                    cta1: v('heroCta1'), cta1Url: v('heroCta1Url'),
-                    cta2: v('heroCta2'), cta2Url: v('heroCta2Url'),
-                    bgStyle: v('heroBgStyle'), bgImg: v('heroBgImg')
-                },
-                navbar: {
-                    logoText: v('navLogoText'), ctaText: v('navCtaText'),
-                    links: Array.from(document.querySelectorAll('.link-item')).map(div => ({
-                        label: div.querySelector('.nav-label').value,
-                        url: div.querySelector('.nav-url').value
-                    }))
-                },
-                about: {
-                    tag: v('aboutTag'), heading: v('aboutHeading'), body: v('aboutBody'),
-                    mission: v('aboutMission'), year: v('aboutYear'),
-                    teamSize: v('aboutTeamSize'), projects: v('aboutProjects'),
-                    satisfaction: v('aboutSatisfaction')
-                },
-                services: {
-                    tag: v('servicesTag'), heading: v('servicesHeading'), subheading: v('servicesSubheading'),
-                    items: Array.from(document.querySelectorAll('.service-item')).map(div => ({
-                        title: div.querySelector('.s-title').value,
-                        icon: div.querySelector('.s-icon').value,
-                        description: div.querySelector('.s-desc').value
-                    }))
-                },
-                portfolio: {
-                    tag: v('portfolioTag'), heading: v('portfolioHeading'), subheading: v('portfolioSubheading'),
-                    items: Array.from(document.querySelectorAll('.portfolio-item')).map(div => ({
-                        name: div.querySelector('.p-name').value,
-                        category: div.querySelector('.p-cat').value,
-                        description: div.querySelector('.p-desc').value,
-                        image: div.querySelector('.p-img').value,
-                        url: div.querySelector('.p-url').value,
-                        year: div.querySelector('.p-year').value
-                    }))
-                },
-                team: {
-                    heading: v('teamHeading'), subheading: v('teamSubheading'),
-                    items: Array.from(document.querySelectorAll('.team-item')).map(div => ({
-                        name: div.querySelector('.t-name').value,
-                        role: div.querySelector('.t-role').value,
-                        bio: div.querySelector('.t-bio').value,
-                        photo: div.querySelector('.t-photo').value,
-                        linkedin: div.querySelector('.t-link').value,
-                        twitter: div.querySelector('.t-twit').value
-                    }))
-                },
-                testimonials: {
-                    heading: v('testiHeading'), subheading: v('testiSubheading'),
-                    items: Array.from(document.querySelectorAll('.testimonial-item')).map(div => ({
-                        name: div.querySelector('.tm-name').value,
-                        company: div.querySelector('.tm-comp').value,
-                        text: div.querySelector('.tm-text').value,
-                        rating: div.querySelector('.tm-rate').value,
-                        photo: div.querySelector('.tm-photo').value
-                    }))
-                },
-                contact: {
-                    heading: v('contactHeading'), email: v('contactEmail'),
-                    phone: v('contactPhone'), address: v('contactAddress'),
-                    intro: v('contactIntro'),
-                    social: {
-                        twitter: v('socialTwitter'), linkedin: v('socialLinkedin'),
-                        github: v('socialGithub'), instagram: v('socialInstagram')
-                    }
-                },
-                footer: {
-                    tagline: v('footerTagline'), copyright: v('footerCopyright'),
-                    privacy: v('footerPrivacy'), terms: v('footerTerms')
-                },
-                seo: {
-                    title: v('seoTitle'), description: v('seoDesc'),
-                    keywords: v('seoKeywords'), ogTitle: v('ogTitle'), ogImage: v('ogImage')
-                },
-                branding: {
-                    accent: v('colorAccentHex'), bg: v('colorBgHex'),
-                    surface: v('colorSurfaceHex'), text: v('colorTextHex'),
-                    fontHeading: v('fontHeading'), fontBody: v('fontBody')
-                },
-                settings: {
-                    siteName: v('settingsSiteName'), domain: v('settingsDomain')
-                }
+                id, name,
+                role: document.getElementById('testimonialRole').value,
+                rating: parseInt(document.getElementById('testimonialRating').value) || 5,
+                text: document.getElementById('testimonialText').value,
+                image: currentTestimonialImage,
+                initials: name.split(' ').map(n=>n[0]).filter(i=>i).join('').toUpperCase()
             };
 
             try {
-                const res = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + (localStorage.getItem('appvertex_token') || '')
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (res.ok) {
-                    showToast('Changes saved successfully!', 'success');
-                    hasUnsaved = false;
-                    document.getElementById('unsavedDot')?.classList.remove('visible');
-                    const now = new Date();
-                    document.getElementById('lastSavedDisplay').textContent = now.toLocaleTimeString();
-                } else { throw new Error(); }
-            } catch (e) { showToast('Save failed', 'error'); }
-            btn.disabled = false; btn.textContent = '✓ Save Changes';
+                showToast("Saving...", "info");
+                await setDoc(doc(db, "testimonials", id), data);
+                showToast("Testimonial saved!");
+                closeModal('testimonialModal');
+                loadDataFromCloud();
+            } catch (e) {
+                console.error("Save error:", e);
+                showToast("Error saving: " + e.message, "error");
+            }
         }
 
-        function v(id) { return document.getElementById(id)?.value || ''; }
-        function s(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
-
-        function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = 'show ' + type;
-            setTimeout(() => t.className = '', 3000);
+        function openProjectModal(p = null) {
+            if (p) {
+                document.getElementById('projectId').value = p.id;
+                document.getElementById('projectName').value = p.name;
+                document.getElementById('projectYear').value = p.year;
+                document.getElementById('projectDesc').value = p.description;
+                document.getElementById('projectTech').value = (p.technologies || []).join(', ');
+                if (p.image) {
+                    currentProjectImage = p.image;
+                    document.getElementById('projectPreview').src = p.image;
+                    document.getElementById('projectPreview').style.display = 'block';
+                    document.getElementById('projectPlaceholder').style.display = 'none';
+                }
+            } else {
+                // Ensure form is reset for new projects
+                const id = document.getElementById('projectId');
+                if (id) id.value = '';
+            }
+            document.getElementById('projectModal').classList.add('active');
         }
+
+        async function saveProject() {
+            const id = document.getElementById('projectId').value || Date.now().toString();
+            const name = document.getElementById('projectName').value.trim();
+
+            if (!name) return showToast("Project name is required", "error");
+
+            const cat = document.getElementById('projectCategory').value;
+            let emoji = '🚀';
+            let color = 'linear-gradient(135deg,#7f1d1d,#991b1b)';
+
+            if (cat === 'ecommerce') { emoji = '🛍️'; color = 'linear-gradient(135deg,#7c2d12,#ea580c)'; }
+            else if (cat === 'school') { emoji = '🎓'; color = 'linear-gradient(135deg,#1e1b4b,#4338ca)'; }
+            else if (cat === 'brand') { emoji = '✨'; color = 'linear-gradient(135deg,var(--primary),var(--primary-dark))'; }
+
+            const data = {
+                id, name,
+                category: cat,
+                emoji, color,
+                year: parseInt(document.getElementById('projectYear').value) || 2025,
+                description: document.getElementById('projectDesc').value,
+                technologies: document.getElementById('projectTech').value.split(',').map(t=>t.trim()).filter(t=>t),
+                image: currentProjectImage
+            };
+
+            try {
+                showToast("Saving...", "info");
+                await setDoc(doc(db, "projects", id), data);
+                showToast("Project saved!");
+                closeModal('projectModal');
+                loadDataFromCloud();
+            } catch (e) {
+                console.error("Save error:", e);
+                showToast("Error saving: " + e.message, "error");
+            }
+        }
+
+        async function saveFooter() {
+            const year = document.getElementById('footerYear').value;
+            await setDoc(doc(db, "settings", "footer"), { year });
+            loadDataFromCloud();
+            showToast("Saved");
+        }
+
+        // Image Upload Handler (with Auto-Resize)
+        function handleImageUpload(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = new Image();
+                imgElement.onload = function() {
+                    // Maximum dimensions
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = imgElement.width;
+                    let height = imgElement.height;
+
+                    // Calculate new dimensions
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    // Create canvas and draw resized image
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(imgElement, 0, 0, width, height);
+
+                    // Convert to base64 with 0.7 compression quality
+                    const resizedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    // Update UI Preview
+                    const preview = document.getElementById(type + 'Preview');
+                    const placeholder = document.getElementById(type + 'Placeholder');
+                    const upload = document.getElementById(type + 'ImageUpload');
+
+                    preview.src = resizedBase64;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    upload.classList.add('has-image');
+
+                    // Save to state
+                    if (type === 'testimonial') currentTestimonialImage = resizedBase64;
+                    else currentProjectImage = resizedBase64;
+                    
+                    showToast("Image optimized for cloud", "info");
+                };
+                imgElement.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            ['testimonialId','testimonialName','testimonialRole','testimonialText','projectId','projectName','projectDesc','projectTech'].forEach(i=>document.getElementById(i).value='');
+            document.getElementById('testimonialPreview').style.display='none';
+            document.getElementById('testimonialPlaceholder').style.display='block';
+            document.getElementById('projectPreview').style.display='none';
+            document.getElementById('projectPlaceholder').style.display='block';
+            currentTestimonialImage = null; currentProjectImage = null;
+        }
+
+        function showToast(msg, type="success") {
+            const t = document.createElement('div'); t.className = `toast ${type}`;
+            t.innerHTML = `<span>${msg}</span>`;
+            document.getElementById('toastContainer').appendChild(t);
+            setTimeout(()=>t.remove(), 3000);
+        }
+
+        // Export logic
+        function generateCode() {
+            fetch('index.html').then(r=>r.text()).then(html => {
+                let code = html;
+                code = code.replace(/© \d{4}/g, `© ${footerYear}`);
+                document.getElementById('codeOutput').textContent = code;
+            });
+        }
+        function copyCode() { console.log(document.getElementById('codeOutput').textContent); showToast("Check console - Navigator clipboard blocked on some local fix"); }
+        function downloadCode() { const b = new Blob([document.getElementById('codeOutput').textContent], {type:'text/html'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download='index.html'; a.click(); }
+
+        async function deleteTestimonial(id) {
+            if (confirm("Are you sure you want to delete this testimonial?")) {
+                try {
+                    showToast("Deleting...", "info");
+                    await deleteDoc(doc(db, "testimonials", id));
+                    showToast("Deleted successfully");
+                    loadDataFromCloud();
+                } catch (e) {
+                    showToast("Error deleting: " + e.message, "error");
+                }
+            }
+        }
+
+        async function deleteProject(id) {
+            if (confirm("Are you sure you want to delete this project?")) {
+                try {
+                    showToast("Deleting...", "info");
+                    await deleteDoc(doc(db, "projects", id));
+                    showToast("Deleted successfully");
+                    loadDataFromCloud();
+                } catch (e) {
+                    showToast("Error deleting: " + e.message, "error");
+                }
+            }
+        }
+
+        // Globals
+        window.handleLogin = handleLogin;
+        window.handleLogout = handleLogout;
+        window.showSection = showSection;
+        window.importLocalData = importLocalData;
+        window.openTestimonialModal = openTestimonialModal;
+        window.saveTestimonial = saveTestimonial;
+        window.deleteTestimonial = deleteTestimonial;
+        window.openProjectModal = openProjectModal;
+        window.saveProject = saveProject;
+        window.deleteProject = deleteProject;
+        window.saveFooter = saveFooter;
+        window.handleImageUpload = handleImageUpload;
+        window.closeModal = closeModal;
+        window.generateCode = generateCode;
+        window.copyCode = copyCode;
+        window.downloadCode = downloadCode;
     </script>
 </body>
-
 </html>
